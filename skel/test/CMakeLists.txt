@@ -62,3 +62,7 @@ ADDTEST(screentest screentest.cpp)
 ADDTEST(test_overlap test_overlap.cpp)
 ADDTEST(test_ke test_ke.cpp)
 ADDTEST(test_potential test_potential.cpp)
+
+if(SIMINT_USE_OPENMP_TARGET)
+  ADDTEST(omp_target_smoke_test omp_target_smoke_test.cpp)
+endif()

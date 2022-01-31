@@ -16,6 +16,7 @@ set(SIMINT_VECTOR  "" CACHE STRING "Type of vectorization to use")
 set(SIMINT_MAXAM  "${SIMINT_MAXAM_AVAILABLE}" CACHE STRING "Maximum AM to use")
 set(SIMINT_MAXDER  "${SIMINT_MAXDER_AVAILABLE}" CACHE STRING "Maximum derivative level")
 set(SIMINT_OMP_TARGET_FLAGS "" CACHE STRING "Compilation flags for OpenMP target offloading")
+separate_arguments(SIMINT_OMP_TARGET_FLAGS)
 
 option(SIMINT_USE_OPENMP_TARGET "Use OpenMP target offloading")
 option(SIMINT_STANDALONE "Create as much of a standalone library as possible")
