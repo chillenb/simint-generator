@@ -4,7 +4,8 @@
  * \author Benjamin Pritchard (ben@bennyp.org)
  */
 
-
+#include <string>
+#include <stdexcept>
 #include "generator/CommandLine.hpp"
 
 
