@@ -7,7 +7,8 @@ import os
 import subprocess
 import re
 import shutil
-
+from functools import partial
+import multiprocessing as mp
 
 def UniqueQuartet(q):
   if q[0] < q[1]:
@@ -46,6 +47,7 @@ parser.add_argument("-vg", required=False, type=int, default=0, help="General VR
 parser.add_argument("-he", required=False, type=int, default=0, help="External HRR for this L value and above")
 parser.add_argument("-hg", required=False, type=int, default=0, help="General HRR for this L value and above")
 parser.add_argument("-d", required=False, type=int, default=0, help="Maximum derivative to generate code for")
+parser.add_argument("-j", required=False, type=int, default=1, help="Number of threads for ostei generation")
 parser.add_argument("outdir", type=str, help="Output directory")
 
 args = parser.parse_args()
@@ -193,20 +195,20 @@ with open(headerfile, 'w') as hfile:
   hfile.write("\n")
 
 
-for q in valid:
+def do_ostei_gen(lock, q):
+  lock.acquire()
   filebase = "ostei_{}_{}_{}_{}".format(amchar[q[0]], amchar[q[1]], amchar[q[2]], amchar[q[3]])
   outfile = os.path.join(outdir_osteigen, filebase + ".c")
   logfile = os.path.join(outdir_osteigen, filebase + ".log")
   filelists[0][max(q)].append(filebase + ".c")
-  print("Creating: {}".format(filebase))
-  print("      Output: {}".format(outfile))
-  print("     Logfile: {}".format(logfile))
+  header_local = os.path.join(outdir_osteigen, filebase + ".h")
+
 
   with open(logfile, 'w') as lf:
     cmdline = [ostei_gen];
     cmdline.extend(["-q", str(q[0]), str(q[1]), str(q[2]), str(q[3])])
     cmdline.extend(["-o", outfile])
-    cmdline.extend(["-oh", headerfile])
+    cmdline.extend(["-oh", header_local])
     cmdline.extend(["-ve", str(args.ve)]) 
     cmdline.extend(["-vg", str(args.vg)]) 
     cmdline.extend(["-he", str(args.he)]) 
@@ -215,24 +217,32 @@ for q in valid:
     if max(q) >= args.p:
         cmdline.append("-p")
 
+    print("Creating: {}".format(filebase))
+    print("      Output: {}".format(outfile))
+    print("     Logfile: {}".format(logfile))
     print()
     print("Command line:")
     print(' '.join(cmdline))
     print()
+    print()
+    lock.release()
 
     ret = subprocess.call(cmdline, stdout=lf, stderr=lf)
 
     if ret != 0:
+      lock.acquire()
       print("\n")
       print("*********************************")
       print("While generating ostei")
       print("Subprocess returned {} - aborting".format(ret))
       print("*********************************")
       print("\n")
-      quit(5)
-
+      # quit(5)
+      lock.release()
+      return ret
 
   # reopen the logfile, find work and requirements
+  lock.acquire()
   for line in open(logfile, 'r').readlines():
     mq = max(q)
     if line.startswith("WORK SIZE"):
@@ -253,13 +263,26 @@ for q in valid:
                                                              amchar[int(reqam[2])],
                                                              amchar[int(reqam[3])],
                                                              amchar[int(reqam[4])]) )
+  lock.release()
+  return ret
 
-  print()
-
+with mp.Pool(processes=args.j) as pool:
+  m = mp.Manager()
+  l = m.Lock()
+  f = partial(do_ostei_gen, l)
+  pool.map(f, list(valid))
 
 # Close out the header file
 
 with open(headerfile, 'a') as hfile:
+  for q in valid:
+    filebase = "ostei_{}_{}_{}_{}".format(amchar[q[0]], amchar[q[1]], amchar[q[2]], amchar[q[3]])
+    header_local = os.path.join(outdir_osteigen, filebase + ".h")
+    with open(header_local, 'r') as hl:
+      lines = hl.readlines()
+      hfile.writelines(lines)
+    os.remove(header_local)
+
   hfile.write("#ifdef __cplusplus\n")
   hfile.write("}\n")
   hfile.write("#endif\n")
@@ -332,21 +355,20 @@ with open(headerfile, 'w') as hfile:
   hfile.write("\n")
 
 
-for q in valid:
-
+def do_ostei_deriv_gen(lock, q):
+  lock.acquire()
   filebase = "ostei_deriv1_{}_{}_{}_{}".format(amchar[q[0]], amchar[q[1]], amchar[q[2]], amchar[q[3]])
   outfile = os.path.join(outdir_osteigen, filebase + ".c")
+  header_local = os.path.join(outdir_osteigen, filebase + ".h")
   logfile = os.path.join(outdir_osteigen, filebase + ".log")
   filelists[1][max(q)].append(filebase + ".c")
-  print("Creating: {}".format(filebase))
-  print("      Output: {}".format(outfile))
-  print("     Logfile: {}".format(logfile))
+
 
   with open(logfile, 'w') as lf:
     cmdline = [ostei_deriv1_gen];
     cmdline.extend(["-q", str(q[0]), str(q[1]), str(q[2]), str(q[3])])
     cmdline.extend(["-o", outfile])
-    cmdline.extend(["-oh", headerfile])
+    cmdline.extend(["-oh", header_local])
     cmdline.extend(["-ve", str(args.ve)]) 
     cmdline.extend(["-vg", str(args.vg)]) 
     cmdline.extend(["-he", str(args.he)]) 
@@ -354,25 +376,33 @@ for q in valid:
 
     if max(q) >= args.p:
         cmdline.append("-p")
-
+    print("Creating: {}".format(filebase))
+    print("      Output: {}".format(outfile))
+    print("     Logfile: {}".format(logfile))
     print()
     print("Command line:")
     print(' '.join(cmdline))
     print()
+    print()
+    lock.release()
 
     ret = subprocess.call(cmdline, stdout=lf, stderr=lf)
 
     if ret != 0:
+      lock.acquire()
       print("\n")
       print("*********************************")
       print("While generating ostei_deriv1")
       print("Subprocess returned {} - aborting".format(ret))
       print("*********************************")
       print("\n")
-      quit(5)
+      # quit(5)
+      lock.release()
+      return ret
 
 
   # reopen the logfile, find work and requirements
+  lock.acquire()
   for line in open(logfile, 'r').readlines():
     mq = max(q)
     if line.startswith("WORK SIZE"):
@@ -393,13 +423,25 @@ for q in valid:
                                                              amchar[int(reqam[2])],
                                                              amchar[int(reqam[3])],
                                                              amchar[int(reqam[4])]) )
+  lock.release()
+  return ret
 
-  print()
-
+with mp.Pool(processes=args.j) as pool:
+  m = mp.Manager()
+  l = m.Lock()
+  f = partial(do_ostei_deriv_gen, l)
+  pool.map(f, list(valid))
 
 # Close out the header file
 
 with open(headerfile, 'a') as hfile:
+  for q in valid:
+    filebase = "ostei_deriv1_{}_{}_{}_{}".format(amchar[q[0]], amchar[q[1]], amchar[q[2]], amchar[q[3]])
+    header_local = os.path.join(outdir_osteigen, filebase + ".h")
+    with open(header_local, 'r') as hl:
+      lines = hl.readlines()
+      hfile.writelines(lines)
+    os.remove(header_local)
   hfile.write("#ifdef __cplusplus\n")
   hfile.write("}\n")
   hfile.write("#endif\n")
