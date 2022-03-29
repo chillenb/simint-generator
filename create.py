@@ -200,7 +200,6 @@ def do_ostei_gen(lock, q):
   filebase = "ostei_{}_{}_{}_{}".format(amchar[q[0]], amchar[q[1]], amchar[q[2]], amchar[q[3]])
   outfile = os.path.join(outdir_osteigen, filebase + ".c")
   logfile = os.path.join(outdir_osteigen, filebase + ".log")
-  filelists[0][max(q)].append(filebase + ".c")
   header_local = os.path.join(outdir_osteigen, filebase + ".h")
 
 
@@ -243,26 +242,7 @@ def do_ostei_gen(lock, q):
 
   # reopen the logfile, find work and requirements
   lock.acquire()
-  for line in open(logfile, 'r').readlines():
-    mq = max(q)
-    if line.startswith("WORK SIZE"):
-      worksize_bcont[0][mq] = max(worksize_bcont[0][mq], int(line.split()[2]))
-      worksize_prim[0][mq] = max(worksize_prim[0][mq], int(line.split()[3]))
-      worksize_cont[0][mq] = max(worksize_cont[0][mq], int(line.split()[4]))
-    elif line.startswith("SIMINT EXTERNAL HRR"):
-      reqam = tuple(line.split()[3:])
-      reqext_hrr.append(reqam)
-      filelists[0][mq].append( "hrr_{}_{}_{}.c".format(reqam[0],
-                                                       amchar[int(reqam[1])],
-                                                       amchar[int(reqam[2])]) )
-    elif line.startswith("SIMINT EXTERNAL VRR"):
-      reqam = tuple(line.split()[3:])
-      reqext_vrr.append(reqam)
-      filelists[0][mq].append( "vrr_{}_{}_{}_{}_{}.c".format(reqam[0],
-                                                             amchar[int(reqam[1])],
-                                                             amchar[int(reqam[2])],
-                                                             amchar[int(reqam[3])],
-                                                             amchar[int(reqam[4])]) )
+
   lock.release()
   return ret
 
@@ -278,10 +258,32 @@ with open(headerfile, 'a') as hfile:
   for q in valid:
     filebase = "ostei_{}_{}_{}_{}".format(amchar[q[0]], amchar[q[1]], amchar[q[2]], amchar[q[3]])
     header_local = os.path.join(outdir_osteigen, filebase + ".h")
+    filelists[0][max(q)].append(filebase + ".c")
     with open(header_local, 'r') as hl:
       lines = hl.readlines()
       hfile.writelines(lines)
     os.remove(header_local)
+    logfile = os.path.join(outdir_osteigen, filebase + ".log")
+    for line in open(logfile, 'r').readlines():
+      mq = max(q)
+      if line.startswith("WORK SIZE"):
+        worksize_bcont[0][mq] = max(worksize_bcont[0][mq], int(line.split()[2]))
+        worksize_prim[0][mq] = max(worksize_prim[0][mq], int(line.split()[3]))
+        worksize_cont[0][mq] = max(worksize_cont[0][mq], int(line.split()[4]))
+      elif line.startswith("SIMINT EXTERNAL HRR"):
+        reqam = tuple(line.split()[3:])
+        reqext_hrr.append(reqam)
+        filelists[0][mq].append( "hrr_{}_{}_{}.c".format(reqam[0],
+                                                        amchar[int(reqam[1])],
+                                                        amchar[int(reqam[2])]) )
+      elif line.startswith("SIMINT EXTERNAL VRR"):
+        reqam = tuple(line.split()[3:])
+        reqext_vrr.append(reqam)
+        filelists[0][mq].append( "vrr_{}_{}_{}_{}_{}.c".format(reqam[0],
+                                                              amchar[int(reqam[1])],
+                                                              amchar[int(reqam[2])],
+                                                              amchar[int(reqam[3])],
+                                                              amchar[int(reqam[4])]) )
 
   hfile.write("#ifdef __cplusplus\n")
   hfile.write("}\n")
@@ -361,7 +363,6 @@ def do_ostei_deriv_gen(lock, q):
   outfile = os.path.join(outdir_osteigen, filebase + ".c")
   header_local = os.path.join(outdir_osteigen, filebase + ".h")
   logfile = os.path.join(outdir_osteigen, filebase + ".log")
-  filelists[1][max(q)].append(filebase + ".c")
 
 
   with open(logfile, 'w') as lf:
@@ -438,6 +439,7 @@ with open(headerfile, 'a') as hfile:
   for q in valid:
     filebase = "ostei_deriv1_{}_{}_{}_{}".format(amchar[q[0]], amchar[q[1]], amchar[q[2]], amchar[q[3]])
     header_local = os.path.join(outdir_osteigen, filebase + ".h")
+    filelists[1][max(q)].append(filebase + ".c")
     with open(header_local, 'r') as hl:
       lines = hl.readlines()
       hfile.writelines(lines)
