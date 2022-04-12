@@ -47,9 +47,10 @@ struct RecurInfo
     int16_t idx[3][3];
 };
 
-
-extern struct RecurInfo const recurinfo_array[1330];
-extern int const am_recur_map[19];
+extern const struct RecurInfo recurinfo_array[1330];
+extern const int am_recur_map[19];
+#pragma omp declare target to(am_recur_map)
+#pragma omp declare target to(recurinfo_array)
 
 #ifdef __cplusplus
 }

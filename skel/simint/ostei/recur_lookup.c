@@ -9,7 +9,13 @@ Options for gen_recurinfo:
 
 #include "simint/ostei/recur_lookup.h"
 
-extern struct RecurInfo const recurinfo_array[1330] = {
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+const struct RecurInfo recurinfo_array[1330] = {
     { {  0,  0,  0 }, -1, { { -1, -1,  0 }, { -1, -1,  1 }, { -1, -1,  2 }  } },
     { {  1,  0,  0 },  0, { {  0, -1,  0 }, { -1, -1,  1 }, { -1, -1,  2 }  } },
     { {  0,  1,  0 },  1, { { -1, -1,  1 }, {  0, -1,  3 }, { -1, -1,  4 }  } },
@@ -1343,7 +1349,7 @@ extern struct RecurInfo const recurinfo_array[1330] = {
 };
 
 
-extern int const am_recur_map[19] = {
+const int am_recur_map[19] = {
           0,
           1,
           4,
@@ -1365,3 +1371,8 @@ extern int const am_recur_map[19] = {
        1140,
 };
 
+
+
+#ifdef __cplusplus
+}
+#endif

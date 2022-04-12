@@ -18,7 +18,8 @@ public:
                       std::ostream & osh,
                       const OSTEI_GeneratorInfo & info,
                       const OSTEI_VRR_Writer & vrr_writer,
-                      const OSTEI_HRR_Writer & hrr_writer);
+                      const OSTEI_HRR_Writer & hrr_writer,
+                      bool use_openmp_target);
 
 
     OSTEI_Writer_Base(const OSTEI_Writer_Base &) = default;
@@ -37,6 +38,7 @@ protected:
     const OSTEI_GeneratorInfo & info_;
     const OSTEI_VRR_Writer & vrr_writer_;
     const OSTEI_HRR_Writer & hrr_writer_;
+    bool use_openmp_target_;
 };
 
 
@@ -56,7 +58,9 @@ private:
     void WriteAccumulation(void) const;
 
     std::string FunctionName_(QAM am) const;
+    std::string OMPTargetFunctionName_(QAM am) const;
     std::string FunctionPrototype_(QAM am) const;
+    std::string OMPTargetFunctionPrototype_(QAM am) const;
 
     bool IsSpecialPermutation_(QAM am) const;
     void Write_Full_(void) const;

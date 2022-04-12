@@ -105,7 +105,7 @@ int main(int argc, char ** argv)
 
 
     // Create the OSTEI_Writer and write the file
-    OSTEI_Writer ostei_writer(of, ofh, info, vrr_writer, hrr_writer);
+    OSTEI_Writer ostei_writer(of, ofh, info, vrr_writer, hrr_writer, (options[Option::OpenMPTarget] != 0));
     ostei_writer.WriteFile();
 
 

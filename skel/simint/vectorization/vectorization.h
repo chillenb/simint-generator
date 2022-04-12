@@ -13,6 +13,8 @@
   #include "simint/vectorization/intrinsics_sse.h"
 #elif defined SIMINT_SCALAR
   #include "simint/vectorization/intrinsics_scalar.h"
+#elif defined SIMINT_TARGET
+  #include "simint/vectorization/intrinsics_target.h"
 #elif defined SIMINT_ASIMD
   #include "simint/vectorization/intrinsics_asimd.h"
 #elif defined SIMINT_SVE

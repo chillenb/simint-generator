@@ -27,7 +27,6 @@ if("${CMAKE_C_COMPILER_ID}" MATCHES "Intel")
     list(APPEND SIMINT_LINK_FLAGS "-static-libgcc;-static-intel;-wd10237")
   endif()
 
-
 elseif("${CMAKE_C_COMPILER_ID}" MATCHES "GNU" OR
        "${CMAKE_C_COMPILER_ID}" MATCHES "Clang")
 
@@ -54,26 +53,15 @@ elseif("${CMAKE_C_COMPILER_ID}" MATCHES "GNU" OR
 
   endif()
 
+elseif("${CMAKE_C_COMPILER_ID}" MATCHES "NVHPC")
+  list(APPEND SIMINT_C_FLAGS "-std=gnu11")
+
+
 else()
 
-  message(FATAL_ERROR "Unsupported compiler")
+  message(FATAL_ERROR "Unsupported compiler: ${CMAKE_C_COMPILER_ID}")
 
 endif()
-
-# You may need to pass in extra flags when using OpenMP target offloading
-# E.g. if you have clang and an NVIDIA Maxwell card, you might use the following flags:
-# -DSIMINT_OMP_TARGET_FLAGS="-fopenmp -fopenmp-targets=nvptx64 -Xopenmp-target -march=sm_50 --cuda-path=/opt/cuda"
-if(SIMINT_USE_OPENMP_TARGET)
-
-  list(APPEND SIMINT_C_FLAGS "${SIMINT_OMP_TARGET_FLAGS}")
-  list(APPEND SIMINT_CXX_FLAGS "${SIMINT_OMP_TARGET_FLAGS}")
-  list(APPEND SIMINT_LINK_FLAGS "${SIMINT_OMP_TARGET_FLAGS}")
-
-  list(APPEND SIMINT_TESTS_CXX_FLAGS "${SIMINT_OMP_TARGET_FLAGS}")
-  list(APPEND SIMINT_TESTS_LINK_FLAGS "${SIMINT_OMP_TARGET_FLAGS}")
-
-endif()
-
 # Check for unspecified or invalid vectorization type
 set(SIMINT_VALID_VECTOR
      scalar
@@ -81,6 +69,11 @@ set(SIMINT_VALID_VECTOR
      scalar-avx
      scalar-avx2
      scalar-micavx512
+     target
+     target-sse
+     target-avx
+     target-avx2
+     target-micavx512
      sse
      avx
      avx2
@@ -108,6 +101,11 @@ endif()
 if(SIMINT_VECTOR_LOWER STREQUAL "scalar")
   list(APPEND SIMINT_CONFIG_DEFINES "SIMINT_SCALAR")
   include(cmake/DefaultFlags_scalar.cmake)
+elseif(SIMINT_VECTOR_LOWER STREQUAL "target")
+  # list(APPEND SIMINT_CONFIG_DEFINES "SIMINT_TARGET")
+  # grayed out because SIMINT_TARGET is added to defines
+  # via DefaultFlags_target.cmake
+  include(cmake/DefaultFlags_target.cmake)
 else()
     if(SIMINT_VECTOR_LOWER MATCHES "scalar-")
         # scalar code, but with other compile flags
@@ -115,10 +113,19 @@ else()
         string(SUBSTRING ${SIMINT_VECTOR_LOWER} 7 -1 SIMINT_VECTOR_NOSCALAR)
         include(cmake/DefaultFlags_${SIMINT_VECTOR_NOSCALAR}.cmake)
         include(cmake/DefaultFlags_scalar.cmake)
+    elseif(SIMINT_VECTOR_LOWER MATCHES "target-")
+        # target code, but with other compile flags
+	# list(APPEND SIMINT_CONFIG_DEFINES "SIMINT_TARGET")
+	      string(SUBSTRING ${SIMINT_VECTOR_LOWER} 7 -1 SIMINT_VECTOR_NOTARGET)
+        include(cmake/DefaultFlags_${SIMINT_VECTOR_NOTARGET}.cmake)
+        include(cmake/DefaultFlags_target.cmake)
+        string(TOUPPER "${SIMINT_VECTOR_NOTARGET}" TARGET_VECTORIZATION_TYPE)
+        list(APPEND SIMINT_CONFIG_DEFINES "SIMINT_${TARGET_VECTORIZATION_TYPE}")
     else()
         list(APPEND SIMINT_CONFIG_DEFINES "SIMINT_${SIMINT_VECTOR_UPPER}")
         include(cmake/DefaultFlags_${SIMINT_VECTOR_LOWER}.cmake)
     endif()
 endif()
+
 
 list(APPEND SIMINT_Fortran_FLAGS "-I${CMAKE_CURRENT_BINARY_DIR}/simint")

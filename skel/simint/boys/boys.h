@@ -11,6 +11,13 @@
 extern "C" {
 #endif
 
+#ifdef SIMINT_TARGET
+static inline
+void boys_F_small_n_target(SIMINT_DBLTYPE * restrict F,
+                          SIMINT_DBLTYPE x,
+                          int n);
+#pragma omp declare variant( boys_F_small_n_target ) match(device={kind(nohost)})
+#endif // SIMINT_TARGET
 static inline
 void boys_F_split_small_n(SIMINT_DBLTYPE * restrict F,
                           SIMINT_DBLTYPE x,
@@ -90,6 +97,29 @@ void boys_F_split(SIMINT_DBLTYPE * restrict F,
     else
         boys_F_split_large_n(F, x, n);
 }
+
+#ifdef SIMINT_TARGET
+#pragma message "SIMINT_TARGET is defined"
+// #pragma omp declare target to(boys_F_split,boys_F_split_small_n,boys_F_split_large_n)
+
+static inline
+void boys_F_small_n_target(double * restrict F,
+                          double x,
+                          int n)
+{
+    // n is small - just do it all of them via
+    // lookup or longfac (no recursion)
+    {
+        if(x < BOYS_SHORTGRID_MAXX)
+            boys_F_taylor(F, x, n);
+        else
+            boys_F_long(F, x, n);    
+    }
+}
+#else
+#pragma message "SIMINT_TARGET is not defined"
+
+#endif // SIMINT_TARGET
 
 
 

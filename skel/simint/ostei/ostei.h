@@ -1,6 +1,8 @@
 #pragma once
 
 #include "simint/shell/shell.h"
+#define NCART(am) ((am>=0)?((((am)+2)*((am)+1))>>1):0)
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 #ifdef __cplusplus
 #include "simint/cpp_restrict.hpp"

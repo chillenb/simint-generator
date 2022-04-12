@@ -5,6 +5,7 @@
 /**********************************************************/
 /* All vrr1 are the same, with some swapping of variables */
 /**********************************************************/
+#pragma omp declare target to(ostei_general_vrr1) device_type(any)
 void ostei_general_vrr1(int i, int num_n,
                         SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
                         const SIMINT_DBLTYPE aop_PQ[3],
@@ -227,6 +228,8 @@ static void ostei_general_vrr_I_j0_l0(
     }
 }
 
+
+#pragma omp declare target to(ostei_general_vrr_I) device_type(any)
 void ostei_general_vrr_I(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
                          SIMINT_DBLTYPE one_over_2pq,
@@ -379,7 +382,7 @@ void ostei_general_vrr_I(int i, int j, int k, int l, int num_n,
     }
 }
 
-
+#pragma omp declare target to(ostei_general_vrr_J) device_type(any)
 void ostei_general_vrr_J(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
                          SIMINT_DBLTYPE one_over_2pq,
@@ -711,6 +714,7 @@ static void ostei_general_vrr_K_j0_l0(
     }
 }
 
+#pragma omp declare target to(ostei_general_vrr_K) device_type(any)
 void ostei_general_vrr_K(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2q, SIMINT_DBLTYPE a_over_q,
                          SIMINT_DBLTYPE one_over_2pq,
@@ -863,6 +867,7 @@ void ostei_general_vrr_K(int i, int j, int k, int l, int num_n,
     }
 }
 
+#pragma omp declare target to(ostei_general_vrr_L) device_type(any)
 void ostei_general_vrr_L(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2q, SIMINT_DBLTYPE a_over_q,
                          SIMINT_DBLTYPE one_over_2pq,

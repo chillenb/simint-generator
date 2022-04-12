@@ -8,8 +8,22 @@
 extern "C" {
 #endif
 
+#ifdef SIMINT_TARGET
+#pragma omp declare target
+#else
+#endif // SIMINT_TARGET
+
 extern double boys_shortgrid[BOYS_SHORTGRID_NPOINT][BOYS_SHORTGRID_MAXN+1];
 
+#ifdef SIMINT_TARGET
+#pragma omp end declare target
+#endif
+
+#ifdef SIMINT_TARGET
+static inline
+void boys_F_taylor_target(double * restrict F, double x, int n);
+#pragma omp declare variant( boys_F_taylor_target ) match(device={kind(nohost)})
+#endif
 static inline
 void boys_F_taylor(double * restrict F, double x, int n)
 {
@@ -39,6 +53,11 @@ void boys_F_taylor(double * restrict F, double x, int n)
     }
 }
 
+#ifdef SIMINT_TARGET
+#pragma omp declare target
+#else
+#endif // SIMINT_TARGET
+
 static inline
 double boys_F_taylor_single(double x, int n)
 {
@@ -58,6 +77,10 @@ double boys_F_taylor_single(double x, int n)
            + dx * ( (1.0/5040.0)   * gridpts[7]
            )))))));
 }
+#ifdef SIMINT_TARGET
+#pragma omp end declare target
+#else
+#endif // SIMINT_TARGET
 
 static inline
 void boys_F_taylor_vec(SIMINT_DBLTYPE * restrict F, SIMINT_DBLTYPE x, int n)
@@ -134,6 +157,39 @@ SIMINT_DBLTYPE boys_F_taylor_single_vec(SIMINT_DBLTYPE x, int n)
 
     return ret;
 }
+
+#ifdef SIMINT_TARGET
+static inline
+void boys_F_taylor_target(double * restrict F, double x, int n)
+{
+    const int lookup_idx = (int)(BOYS_SHORTGRID_LOOKUPFAC*(x+BOYS_SHORTGRID_LOOKUPFAC2));
+    const double xi = ((double)lookup_idx * BOYS_SHORTGRID_SPACE);
+    const double dx = xi-x;   // -delta x
+
+    double const * restrict gridpts = &(boys_shortgrid[lookup_idx][0]);
+
+    #pragma omp simd
+    for(int i = 0; i <= n; ++i)
+    {
+        double const * restrict gridpts2 = gridpts + i;
+
+        F[i] = gridpts2[0]
+               + dx * (                  gridpts2[1]
+               + dx * ( (1.0/2.0   )   * gridpts2[2]
+               + dx * ( (1.0/6.0   )   * gridpts2[3]
+               + dx * ( (1.0/24.0  )   * gridpts2[4]
+               + dx * ( (1.0/120.0 )   * gridpts2[5]
+               + dx * ( (1.0/720.0 )   * gridpts2[6]
+               + dx * ( (1.0/5040.0)   * gridpts2[7]
+               )))))));
+    }
+}
+#endif
+
+
+
+
+
 
 
 #ifdef __cplusplus

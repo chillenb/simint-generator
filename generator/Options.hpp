@@ -19,6 +19,7 @@ enum class Option
     ExternalHRR,  //!< Write external HRR at this L value and above
     GeneralHRR,   //!< Write general HRR at this L value and above
     FinalPermute, //!< Generate code for permuting final integrals
+    OpenMPTarget,  //!< Write directives for OpenMP target offloading
 };
 
 
@@ -37,6 +38,7 @@ inline OptionMap DefaultOptions(void)
                       {Option::ExternalHRR, 0},
                       {Option::GeneralHRR, 0},
                       {Option::FinalPermute, 0},
+                      {Option::OpenMPTarget, 0},
                     };
 }
 

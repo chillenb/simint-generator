@@ -2,6 +2,7 @@
 #include "simint/recur_lookup.h"
 
 
+#pragma omp declare target to(ostei_general_hrr_I) device_type(any)
 void ostei_general_hrr_I(int i, int j, int k, int l,
                          const double AB[3],
                          const double * theta1,
@@ -53,7 +54,7 @@ void ostei_general_hrr_I(int i, int j, int k, int l,
 }
 
 
-
+#pragma omp declare target to(ostei_general_hrr_J) device_type(any)
 void ostei_general_hrr_J(int i, int j, int k, int l,
                          const double AB[3],
                          const double * theta1,
@@ -104,7 +105,7 @@ void ostei_general_hrr_J(int i, int j, int k, int l,
     }
 }
 
-
+#pragma omp declare target to(ostei_general_hrr_K) device_type(any)
 void ostei_general_hrr_K(int i, int j, int k, int l,
                          const double CD[3],
                          const double * theta1,
@@ -155,6 +156,7 @@ void ostei_general_hrr_K(int i, int j, int k, int l,
     }
 }
 
+#pragma omp declare target to(ostei_general_hrr_L) device_type(any)
 void ostei_general_hrr_L(int i, int j, int k, int l,
                          const double CD[3],
                          const double * theta1,

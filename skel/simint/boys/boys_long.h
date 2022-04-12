@@ -10,6 +10,11 @@
 extern "C" {
 #endif
 
+#ifdef SIMINT_TARGET
+static inline
+void boys_F_long_target(double * restrict F, double x, int n);
+#pragma omp declare variant( boys_F_long_target ) match(device={kind(nohost)})
+#endif
 static inline
 void boys_F_long(double * restrict F, double x, int n)
 {
@@ -57,6 +62,20 @@ SIMINT_DBLTYPE boys_F_long_single_vec(SIMINT_DBLTYPE x, int n)
     return SIMINT_MUL(lfac, x2);
 }
 
+
+#ifdef SIMINT_TARGET
+static inline void boys_F_long_target(double * restrict F, double x, int n)
+{
+    const double x1 = 1.0/x;
+    double x2 = sqrt(x1);
+
+     for(int i = 0; i <= n; i++)
+     {
+        F[i] = boys_longfac[i] * x2;
+        x2 *= x1;
+     }
+}
+#endif
 
 #ifdef __cplusplus
 }

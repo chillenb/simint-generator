@@ -12,6 +12,11 @@ Options for long Boys function factor sqrt(pi)*(2n-1)!!/(2**(n+1)):
 
 #define BOYS_LONGFAC_MAXN 31
 
+#ifdef SIMINT_TARGET
+#pragma omp declare target
+#else
+#endif // SIMINT_TARGET
+
 static const double boys_longfac[BOYS_LONGFAC_MAXN + 1] = 
 {
 /* n =    0 */  0.886226925452758014            ,
@@ -48,3 +53,7 @@ static const double boys_longfac[BOYS_LONGFAC_MAXN + 1] =
 /* n =   31 */  7.35461282357363562e+32         ,
 };
 
+#ifdef SIMINT_TARGET
+#pragma omp end declare target
+#else
+#endif // SIMINT_TARGET

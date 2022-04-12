@@ -13,9 +13,10 @@ OSTEI_Writer_Base::OSTEI_Writer_Base(std::ostream & os,
                                      std::ostream & osh,
                                      const OSTEI_GeneratorInfo & info,
                                      const OSTEI_VRR_Writer & vrr_writer,
-                                     const OSTEI_HRR_Writer & hrr_writer)
+                                     const OSTEI_HRR_Writer & hrr_writer,
+                                     bool use_openmp_target)
        : os_(os), osh_(osh), info_(info),
-         vrr_writer_(vrr_writer), hrr_writer_(hrr_writer)
+         vrr_writer_(vrr_writer), hrr_writer_(hrr_writer), use_openmp_target_(use_openmp_target)
 { }
 
 

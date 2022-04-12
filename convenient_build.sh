@@ -5,5 +5,5 @@ fi
 mkdir build; cd build
 
 
-CC=gcc CXX=g++ cmake -DGENERATOR_CXX_FLAGS="-O3;-march=native;-flto" ../
+CC=gcc CXX=g++ cmake -DGENERATOR_CXX_FLAGS="-O3;-march=native;-flto;-fno-strict-aliasing" ../
 make -j16 VERBOSE=1
