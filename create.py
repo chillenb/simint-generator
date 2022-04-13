@@ -51,6 +51,9 @@ def runostei(arg):
     if max(q) >= args.p:
         cmdline.append("-p")
 
+    if use_omp:
+      cmdline.append("-omp")
+
     print()
     print("Command line:")
     print(' '.join(cmdline))
@@ -88,13 +91,14 @@ parser.add_argument("-vg", required=False, type=int, default=0, help="General VR
 parser.add_argument("-he", required=False, type=int, default=0, help="External HRR for this L value and above")
 parser.add_argument("-hg", required=False, type=int, default=0, help="General HRR for this L value and above")
 parser.add_argument("-d", required=False, type=int, default=0, help="Maximum derivative to generate code for")
+parser.add_argument("-omp", required=False, action="store_true", help="Use OpenMP target offloading")
 parser.add_argument("outdir", type=str, help="Output directory")
 
 args = parser.parse_args()
 
 maxam = args.l
 derorder = args.d
-
+use_omp = args.omp
 
 ###################################
 # Actual code starts here
@@ -154,6 +158,9 @@ shutil.copy(os.path.join(skeldir, "CMakeLists.txt"),        args.outdir)
 shutil.copy(os.path.join(skeldir, "README"),                args.outdir)
 shutil.copy(os.path.join(skeldir, "LICENSE"),               args.outdir)
 shutil.copy(os.path.join(skeldir, "CHANGELOG"),             args.outdir)
+if use_omp:
+  shutil.copy(os.path.join(skeldir, "ompbasic.sh"),             args.outdir)
+  shutil.copy(os.path.join(skeldir, "ompbuild.sh"),             args.outdir)
 
 # We need to create the ostei/gen directory, which
 # is empty and therefore not included in the git
@@ -198,6 +205,8 @@ print()
 # Generate the ostei
 headerbase = "ostei_generated.h"
 headerfile = os.path.join(outdir_osteigen, headerbase)
+switchbase = "ostei_switch.c"
+switchfile = os.path.join(outdir_osteigen, switchbase)
 
 # Maximum required work
 worksize_bcont = [[0]*(maxam+1) for _ in range(derorder+1)]
@@ -285,6 +294,23 @@ with open(headerfile, 'a') as hfile:
   hfile.write("}\n")
   hfile.write("#endif\n")
   hfile.write("\n")
+
+
+# generate switch statement (needed for OpenMP target offload)
+if use_omp:
+  with open(switchfile, "w") as sfile:
+    sfile.write("switch(shellq_idx) {\n")
+    for q in valid:
+      sfile.write(f"#if ({q[0]}<=SIMINT_OSTEI_MAXAM && {q[1]} <= SIMINT_OSTEI_MAXAM && {q[2]} <= SIMINT_OSTEI_MAXAM && {q[3]} <= SIMINT_OSTEI_MAXAM)\n")
+      sfile.write(f"case SWITCHIDX({q[0]}, {q[1]}, {q[2]}, {q[3]}):\n")
+      sfile.write("#pragma omp target uglymap\n")
+      sfile.write("\t{\n")
+      sfile.write("\tretval = ostei_{}_{}_{}_{}(PP, QQ, screen_tol2, work, integrals);\n".format(amchar[q[0]], amchar[q[1]], amchar[q[2]], amchar[q[3]]))
+      sfile.write("\t}\n")
+      sfile.write("\tbreak;\n")
+      sfile.write(f"#endif\n")
+    sfile.write("\tdefault: retval=-1; break;\n")
+    sfile.write("}\n")
 
 # Overwrite the manually optimized file
 shutil.copy(os.path.join(skeldir, "ostei_s_s_s_s.c"), outdir_osteigen)
