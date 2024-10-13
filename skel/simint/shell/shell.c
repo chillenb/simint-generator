@@ -601,6 +601,24 @@ void simint_create_multi_shellpair2(int nshell12,
     simint_fill_multi_shellpair2(nshell12, AB, P, screen_method);
 }
 
+void simint_create_multi_shellpair_zeroshell(int n,
+                                    struct simint_shell const * A,
+                                    struct simint_multi_shellpair * P,
+                                    int screen_method)
+{
+    static struct simint_shell *zeroshell;
+    static int zeroshell_initialized = 0;
+    if (!zeroshell_initialized)
+    {
+        simint_initialize_shell(&zeroshell);
+        simint_create_zero_shell(&zeroshell);
+        zeroshell_initialized = 1;
+    }
+
+    simint_allocate_multi_shellpair(n, A, 1, &zeroshell, P, screen_method);
+    simint_fill_multi_shellpair(n, A, 1, &zeroshell, P, screen_method);
+}
+
 
 void simint_cat_multi_shellpair(int nmpair,
                                 struct simint_multi_shellpair const ** Pin,

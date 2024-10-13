@@ -345,6 +345,16 @@ simint_create_multi_shellpair2(int npair,
                                int screen_method);
 
 
+/*! \brief Allocates and fills a multi shellpair structure
+ * from a single shell and a zero shell.
+ * This is useful for 3-center integrals.
+ *
+ */
+void simint_create_multi_shellpair_zeroshell(int n,
+                                    struct simint_shell const * A,
+                                    struct simint_multi_shellpair * P,
+                                    int screen_method);
+
 /*! \brief Combine existing multi shellpair structures into a new one
  *
  * Existing information in \Pout will be erased
