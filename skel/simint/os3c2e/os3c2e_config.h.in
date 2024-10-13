@@ -2,12 +2,12 @@
 
 #include "simint/vectorization/vectorization.h"
 
-#define SIMINT_OSTEI_MAXAM @SIMINT_MAXAM@
-#define SIMINT_OSTEI_MAXDER @SIMINT_MAXDER@
-#define SIMINT_OSTEI_DERIV1_MAXAM (SIMINT_OSTEI_MAXDER > 0 ? @SIMINT_MAXAM@ : -1)
+#define SIMINT_OS3C2E_MAXAM @SIMINT_MAXAM@
+#define SIMINT_OS3C2E_MAXDER @SIMINT_MAXDER@
+#define SIMINT_OS3C2E_DERIV1_MAXAM (SIMINT_OS3C2E_MAXDER > 0 ? @SIMINT_MAXAM@ : -1)
 
 
-static inline size_t simint_ostei_worksize(int derorder, int maxam)
+static inline size_t simint_os3c2e_worksize(int derorder, int maxam)
 {
     static const size_t nelements[1][8] = {
       {
@@ -24,9 +24,9 @@ static inline size_t simint_ostei_worksize(int derorder, int maxam)
     return nelements[derorder][maxam];
 }
 
-static inline size_t simint_ostei_workmem(int derorder, int maxam)
+static inline size_t simint_os3c2e_workmem(int derorder, int maxam)
 {
-    return simint_ostei_worksize(derorder, maxam)*sizeof(double);
+    return simint_os3c2e_worksize(derorder, maxam)*sizeof(double);
 }
 
 

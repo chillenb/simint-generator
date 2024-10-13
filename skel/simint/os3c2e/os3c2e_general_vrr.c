@@ -1,11 +1,11 @@
-#include "simint/ostei/ostei_general.h"
+#include "simint/os3c2e/os3c2e_general.h"
 #include "simint/recur_lookup.h"
 
 
 /**********************************************************/
 /* All vrr1 are the same, with some swapping of variables */
 /**********************************************************/
-void ostei_general_vrr1(int i, int num_n,
+void os3c2e_general_vrr1(int i, int num_n,
                         SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
                         const SIMINT_DBLTYPE aop_PQ[3],
                         const SIMINT_DBLTYPE PA[3],
@@ -52,7 +52,7 @@ void ostei_general_vrr1(int i, int num_n,
     }
 }
 
-static void ostei_general_vrr_I_j0_l0(
+static void os3c2e_general_vrr_I_j0_l0(
     int i, int j, int k, int l, int num_n,
     SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
     SIMINT_DBLTYPE one_over_2pq,
@@ -227,7 +227,7 @@ static void ostei_general_vrr_I_j0_l0(
     }
 }
 
-void ostei_general_vrr_I(int i, int j, int k, int l, int num_n,
+void os3c2e_general_vrr_I(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
                          SIMINT_DBLTYPE one_over_2pq,
                          const SIMINT_DBLTYPE aop_PQ[3],
@@ -241,7 +241,7 @@ void ostei_general_vrr_I(int i, int j, int k, int l, int num_n,
 {
     if ((j == 0) && (l == 0) && (theta3 == NULL) && (theta5 == NULL))
     {
-        ostei_general_vrr_I_j0_l0(
+        os3c2e_general_vrr_I_j0_l0(
             i, j, k, l, num_n, one_over_2p, a_over_p, one_over_2pq, 
             aop_PQ, PA, theta1, theta2, theta3, theta4, theta5, output
         );
@@ -380,7 +380,7 @@ void ostei_general_vrr_I(int i, int j, int k, int l, int num_n,
 }
 
 
-void ostei_general_vrr_J(int i, int j, int k, int l, int num_n,
+void os3c2e_general_vrr_J(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
                          SIMINT_DBLTYPE one_over_2pq,
                          const SIMINT_DBLTYPE aop_PQ[3],
@@ -523,7 +523,7 @@ void ostei_general_vrr_J(int i, int j, int k, int l, int num_n,
     }
 }
 
-static void ostei_general_vrr_K_j0_l0(
+static void os3c2e_general_vrr_K_j0_l0(
     int i, int j, int k, int l, int num_n,
     SIMINT_DBLTYPE one_over_2q, SIMINT_DBLTYPE a_over_q,
     SIMINT_DBLTYPE one_over_2pq,
@@ -711,7 +711,7 @@ static void ostei_general_vrr_K_j0_l0(
     }
 }
 
-void ostei_general_vrr_K(int i, int j, int k, int l, int num_n,
+void os3c2e_general_vrr_K(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2q, SIMINT_DBLTYPE a_over_q,
                          SIMINT_DBLTYPE one_over_2pq,
                          const SIMINT_DBLTYPE aoq_PQ[3],
@@ -725,7 +725,7 @@ void ostei_general_vrr_K(int i, int j, int k, int l, int num_n,
 {
     if ((j == 0) && (l == 0) && (theta3 == NULL) && (theta5 == NULL))
     {
-        ostei_general_vrr_K_j0_l0(
+        os3c2e_general_vrr_K_j0_l0(
             i, j, k, l, num_n, one_over_2q, a_over_q, one_over_2pq, 
             aoq_PQ, QC, theta1, theta2, theta3, theta4, theta5, output
         );
@@ -863,7 +863,7 @@ void ostei_general_vrr_K(int i, int j, int k, int l, int num_n,
     }
 }
 
-void ostei_general_vrr_L(int i, int j, int k, int l, int num_n,
+void os3c2e_general_vrr_L(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2q, SIMINT_DBLTYPE a_over_q,
                          SIMINT_DBLTYPE one_over_2pq,
                          const SIMINT_DBLTYPE aoq_PQ[3],

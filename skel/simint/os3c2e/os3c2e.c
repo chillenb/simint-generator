@@ -1,13 +1,13 @@
-#include "simint/ostei/ostei.h"
-#include "simint/ostei/ostei_config.h"
+#include "simint/os3c2e/os3c2e.h"
+#include "simint/os3c2e/os3c2e_config.h"
 
 // This is the actual storage for this array
-#define AMSIZE   SIMINT_OSTEI_MAXAM+1
-#define DERSIZE  SIMINT_OSTEI_MAXDER+1
-simint_osteifunc simint_osteifunc_array[DERSIZE][AMSIZE][AMSIZE][AMSIZE][AMSIZE];
+#define AMSIZE   SIMINT_OS3C2E_MAXAM+1
+#define DERSIZE  SIMINT_OS3C2E_MAXDER+1
+simint_os3c2efunc simint_os3c2efunc_array[DERSIZE][AMSIZE][AMSIZE][AMSIZE][AMSIZE];
 
 
-int simint_compute_ostei(struct simint_multi_shellpair const * P,
+int simint_compute_os3c2e(struct simint_multi_shellpair const * P,
                          struct simint_multi_shellpair const * Q,
                          double screen_tol,
                          double * restrict work,
@@ -19,12 +19,12 @@ int simint_compute_ostei(struct simint_multi_shellpair const * P,
     if(screen_tol > 0.0 && (P->screen_max * Q->screen_max) < screen_tol2 )
         return -1;
 
-    return simint_osteifunc_array[0][P->am1][P->am2][Q->am1][Q->am2](*P, *Q,
+    return simint_os3c2efunc_array[0][P->am1][P->am2][Q->am1][Q->am2](*P, *Q,
                                                 screen_tol2, work, integrals);
 }
 
 
-int simint_compute_ostei_deriv(int deriv,
+int simint_compute_os3c2e_deriv(int deriv,
                                struct simint_multi_shellpair const * P,
                                struct simint_multi_shellpair const * Q,
                                double screen_tol,
@@ -37,7 +37,7 @@ int simint_compute_ostei_deriv(int deriv,
     if(screen_tol > 0.0 && (P->screen_max * Q->screen_max) < screen_tol2 )
         return -1;
 
-    return simint_osteifunc_array[deriv][P->am1][P->am2][Q->am1][Q->am2](*P, *Q,
+    return simint_os3c2efunc_array[deriv][P->am1][P->am2][Q->am1][Q->am2](*P, *Q,
                                                   screen_tol2, work, integrals);
 }
 

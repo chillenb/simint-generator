@@ -7,7 +7,7 @@ Options for gen_recurinfo:
 ------------------------------------
 */
 
-#include "simint/ostei/recur_lookup.h"
+#include "simint/os3c2e/recur_lookup.h"
 
 extern struct RecurInfo const recurinfo_array[1330] = {
     { {  0,  0,  0 }, -1, { { -1, -1,  0 }, { -1, -1,  1 }, { -1, -1,  2 }  } },

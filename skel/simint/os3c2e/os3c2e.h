@@ -8,14 +8,14 @@ extern "C" {
 #endif
 
 //! A pointer to a function that calculates TEI utilizing a shared workspace
-typedef int (*simint_osteifunc)(struct simint_multi_shellpair const,
+typedef int (*simint_os3c2efunc)(struct simint_multi_shellpair const,
                                 struct simint_multi_shellpair const,
                                 double,
                                 double * restrict,
                                 double * restrict);
 
 
-/*! \brief Compute an ostei given shell pair information
+/*! \brief Compute an os3c2e given shell pair information
  *
  * \param [in] P The shell pairs for the bra side of the integral 
  * \param [in] Q The shell pairs for the ket side of the integral
@@ -25,13 +25,13 @@ typedef int (*simint_osteifunc)(struct simint_multi_shellpair const,
  *                          is not passed, you are expected to ensure that this buffer
  *                          is large enough
  */
-int simint_compute_ostei(struct simint_multi_shellpair const * P,
+int simint_compute_os3c2e(struct simint_multi_shellpair const * P,
                          struct simint_multi_shellpair const * Q,
                          double screen_tol,
                          double * restrict work,
                          double * restrict integrals);
 
-/*! \brief Compute an ostei derivative given shell pair information
+/*! \brief Compute an os3c2e derivative given shell pair information
  *
  * \param [in] deriv Order of the derivative to compute
  * \param [in] P The shell pairs for the bra side of the integral 
@@ -42,7 +42,7 @@ int simint_compute_ostei(struct simint_multi_shellpair const * P,
  *                          is not passed, you are expected to ensure that this buffer
  *                          is large enough
  */
-int simint_compute_ostei_deriv(int deriv,
+int simint_compute_os3c2e_deriv(int deriv,
                                struct simint_multi_shellpair const * P,
                                struct simint_multi_shellpair const * Q,
                                double screen_tol,

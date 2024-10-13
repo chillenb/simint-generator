@@ -1,6 +1,6 @@
 #pragma once
 
-#include "simint/ostei/ostei.h"
+#include "simint/os3c2e/os3c2e.h"
 #include "simint/vectorization/vectorization.h"
 
 
@@ -19,7 +19,7 @@ extern "C" {
  *
  * \todo writeme
  */
-void ostei_general_vrr1(int i, int num_n,
+void os3c2e_general_vrr1(int i, int num_n,
                         SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
                         const SIMINT_DBLTYPE aop_PQ[3],
                         const SIMINT_DBLTYPE PA[3],
@@ -33,7 +33,7 @@ void ostei_general_vrr1(int i, int num_n,
  * \todo writeme
  */
 static inline
-void ostei_general_vrr1_I(int i, int num_n,
+void os3c2e_general_vrr1_I(int i, int num_n,
                           SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
                           const SIMINT_DBLTYPE aop_PQ[3],
                           const SIMINT_DBLTYPE PA[3],
@@ -41,7 +41,7 @@ void ostei_general_vrr1_I(int i, int num_n,
                           SIMINT_DBLTYPE const * restrict theta2,
                           SIMINT_DBLTYPE * restrict output)
 {
-    ostei_general_vrr1(i, num_n, one_over_2p, a_over_p, aop_PQ, PA,
+    os3c2e_general_vrr1(i, num_n, one_over_2p, a_over_p, aop_PQ, PA,
                  theta1, theta2, output);
 }
 
@@ -50,7 +50,7 @@ void ostei_general_vrr1_I(int i, int num_n,
  * \todo writeme
  */
 static inline
-void ostei_general_vrr1_J(int j, int num_n,
+void os3c2e_general_vrr1_J(int j, int num_n,
                           SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
                           const SIMINT_DBLTYPE aop_PQ[3],
                           const SIMINT_DBLTYPE PB[3],
@@ -58,7 +58,7 @@ void ostei_general_vrr1_J(int j, int num_n,
                           SIMINT_DBLTYPE const * restrict theta2,
                           SIMINT_DBLTYPE * restrict output)
 {
-    ostei_general_vrr1(j, num_n, one_over_2p, a_over_p, aop_PQ, PB,
+    os3c2e_general_vrr1(j, num_n, one_over_2p, a_over_p, aop_PQ, PB,
                  theta1, theta2, output);
 }
 
@@ -67,7 +67,7 @@ void ostei_general_vrr1_J(int j, int num_n,
  * \todo writeme
  */
 static inline
-void ostei_general_vrr1_K(int k, int num_n,
+void os3c2e_general_vrr1_K(int k, int num_n,
                           SIMINT_DBLTYPE one_over_2q, SIMINT_DBLTYPE a_over_q,
                           const SIMINT_DBLTYPE aoq_PQ[3],
                           const SIMINT_DBLTYPE QC[3],
@@ -75,7 +75,7 @@ void ostei_general_vrr1_K(int k, int num_n,
                           SIMINT_DBLTYPE const * restrict theta2,
                           SIMINT_DBLTYPE * restrict output)
 {
-    ostei_general_vrr1(k, num_n, one_over_2q, a_over_q, aoq_PQ, QC,
+    os3c2e_general_vrr1(k, num_n, one_over_2q, a_over_q, aoq_PQ, QC,
                  theta1, theta2, output);
 }
 
@@ -84,7 +84,7 @@ void ostei_general_vrr1_K(int k, int num_n,
  * \todo writeme
  */
 static inline
-void ostei_general_vrr1_L(int l, int num_n,
+void os3c2e_general_vrr1_L(int l, int num_n,
                           SIMINT_DBLTYPE one_over_2q, SIMINT_DBLTYPE a_over_q,
                           const SIMINT_DBLTYPE aoq_PQ[3],
                           const SIMINT_DBLTYPE QD[3],
@@ -92,7 +92,7 @@ void ostei_general_vrr1_L(int l, int num_n,
                           SIMINT_DBLTYPE const * restrict theta2,
                           SIMINT_DBLTYPE * restrict output)
 {
-    ostei_general_vrr1(l, num_n, one_over_2q, a_over_q, aoq_PQ, QD,
+    os3c2e_general_vrr1(l, num_n, one_over_2q, a_over_q, aoq_PQ, QD,
                  theta1, theta2, output);
 }
 
@@ -101,7 +101,7 @@ void ostei_general_vrr1_L(int l, int num_n,
  *
  * \todo writeme
  */
-void ostei_general_vrr_I(int i, int j, int k, int l, int num_n,
+void os3c2e_general_vrr_I(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
                          SIMINT_DBLTYPE one_over_2pq,
                          const SIMINT_DBLTYPE aop_PQ[3],
@@ -117,7 +117,7 @@ void ostei_general_vrr_I(int i, int j, int k, int l, int num_n,
  *
  * \todo writeme
  */
-void ostei_general_vrr_J(int i, int j, int k, int l, int num_n,
+void os3c2e_general_vrr_J(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2p, SIMINT_DBLTYPE a_over_p,
                          SIMINT_DBLTYPE one_over_2pq,
                          const SIMINT_DBLTYPE aop_PQ[3],
@@ -133,7 +133,7 @@ void ostei_general_vrr_J(int i, int j, int k, int l, int num_n,
  *
  * \todo writeme
  */
-void ostei_general_vrr_K(int i, int j, int k, int l, int num_n,
+void os3c2e_general_vrr_K(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2q, SIMINT_DBLTYPE a_over_q,
                          SIMINT_DBLTYPE one_over_2pq,
                          const SIMINT_DBLTYPE aoq_PQ[3],
@@ -149,7 +149,7 @@ void ostei_general_vrr_K(int i, int j, int k, int l, int num_n,
  *
  * \todo writeme
  */
-void ostei_general_vrr_L(int i, int j, int k, int l, int num_n,
+void os3c2e_general_vrr_L(int i, int j, int k, int l, int num_n,
                          SIMINT_DBLTYPE one_over_2q, SIMINT_DBLTYPE a_over_q,
                          SIMINT_DBLTYPE one_over_2pq,
                          const SIMINT_DBLTYPE aoq_PQ[3],
@@ -170,7 +170,7 @@ void ostei_general_vrr_L(int i, int j, int k, int l, int num_n,
  *
  * \todo writeme
  */
-void ostei_general_hrr_I(int i, int j, int k, int l,
+void os3c2e_general_hrr_I(int i, int j, int k, int l,
                          const double AB[3],
                          const double * theta1,
                          const double * theta2,
@@ -180,7 +180,7 @@ void ostei_general_hrr_I(int i, int j, int k, int l,
  *
  * \todo writeme
  */
-void ostei_general_hrr_J(int i, int j, int k, int l,
+void os3c2e_general_hrr_J(int i, int j, int k, int l,
                          const double AB[3],
                          const double * theta1,
                          const double * theta2,
@@ -190,7 +190,7 @@ void ostei_general_hrr_J(int i, int j, int k, int l,
  *
  * \todo writeme
  */
-void ostei_general_hrr_K(int i, int j, int k, int l,
+void os3c2e_general_hrr_K(int i, int j, int k, int l,
                          const double CD[3],
                          const double * theta1,
                          const double * theta2,
@@ -200,7 +200,7 @@ void ostei_general_hrr_K(int i, int j, int k, int l,
  *
  * \todo writeme
  */
-void ostei_general_hrr_L(int i, int j, int k, int l,
+void os3c2e_general_hrr_L(int i, int j, int k, int l,
                          const double CD[3],
                          const double * theta1,
                          const double * theta2,
