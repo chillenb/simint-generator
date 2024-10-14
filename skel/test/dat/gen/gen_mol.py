@@ -16,6 +16,10 @@ parser.add_argument("out", type=str, help="Path to output file")
 args = parser.parse_args()
 
 ang_to_bohr = 1.0/0.52917721067
+def gint(s):
+    return int(float(s.replace('D', 'E')))
+def gfloat(s):
+    return float(s.replace('D', 'E'))
 
 
 print("");
@@ -50,7 +54,7 @@ while i < len(flines):
   while flines[i] != '****':
     lsplt = flines[i].split()
     styp = lsplt[0].upper()
-    nshell = int(lsplt[1])
+    nshell = gint(lsplt[1])
 
     shell = {}
     shell['Type'] = styp
@@ -89,7 +93,7 @@ mol = []
 for a in geo:
   mol.append({
                'Sym' : a[0],
-               'XYZ' : [ float(a[1])*ang_to_bohr, float(a[2])*ang_to_bohr, float(a[3])*ang_to_bohr ],
+               'XYZ' : [ gfloat(a[1])*ang_to_bohr, gfloat(a[2])*ang_to_bohr, gfloat(a[3])*ang_to_bohr ],
                'BAS' : atombas[a[0]]
              })
              
