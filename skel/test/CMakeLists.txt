@@ -58,6 +58,7 @@ if(${SIMINT_MAXDER} GREATER 0)
 endif()
 
 ADDTEST(benchmark_eri benchmark_eri.cpp)
+ADDTEST(benchmark_all_eri benchmark_all_eri.cpp)
 ADDTEST(screentest screentest.cpp)
 ADDTEST(test_overlap test_overlap.cpp)
 ADDTEST(test_ke test_ke.cpp)

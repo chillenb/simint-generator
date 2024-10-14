@@ -6,3 +6,5 @@ __pycache__
 skel/eri/gen
 skel/vectorization/vectorization_generated.h
 skel/test/dat/C6H6.DZP.mol.ref
+outdir
+.vscode

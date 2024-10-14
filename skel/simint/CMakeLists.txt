@@ -74,6 +74,19 @@ if(${BUILD_SHARED_LIBS})
     endif()
 endif()
 
+if(SIMINT_USE_SLEEF)
+    include(ExternalProject)
+    ExternalProject_Add(libsleef
+    GIT_REPOSITORY https://github.com/shibatch/sleef
+    GIT_TAG "3.7"
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/sleef_src -DSLEEF_BUILD_INLINE_HEADERS=ON -DSLEEF_BUILD_LIBM=OFF -DSLEEF_BUILD_GNUABI_LIBS=OFF -DSLEEF_BUILD_TESTS=OFF
+    )
+    add_dependencies(simint libsleef)
+    include_directories(${CMAKE_BINARY_DIR}/sleef_src/include)
+    target_compile_definitions(simint PRIVATE SIMINT_USE_SLEEF)
+    target_compile_options(simint PRIVATE -Wno-unused-function -Wno-unknown-pragmas)
+endif()
+
 # Installation
 # Include directory used for export target
 target_include_directories(simint INTERFACE

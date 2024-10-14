@@ -17,8 +17,12 @@ union simint_double8
     double d[8];
 };
 
-
-#if __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 22
+#ifdef SIMINT_USE_SLEEF && (defined SIMINT_COMMONAVX512 || defined SIMINT_MICAVX512)
+    #include <string.h>
+    #include <sleefinline_avx.h>
+    static inline __m256d simint_exp_vec4(__m256d x) {return Sleef_exp2d4_u35avx(x);}
+    static inline __m256d simint_pow_vec4(__m256d a, __m256d p) {return Sleef_powd4_u35avx(a, p);}
+#elif __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 22
     __m512d _ZGVeN8v_exp(__m512d x);
     static inline __m512d simint_exp_vec8(__m512d x) { return _ZGVeN8v_exp(x); }
 

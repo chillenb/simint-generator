@@ -17,13 +17,27 @@ union simint_double4
     double d[4];
 };
 
-
-#if __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 22
+#ifdef SIMINT_USE_SLEEF
+    #include <string.h>
+    #ifdef SIMINT_AVX
+        #include <sleefinline_avx.h>
+        static inline __m256d simint_exp_vec4(__m256d x) {return Sleef_expd4_u10avx(x);}
+        static inline __m256d simint_pow_vec4(__m256d a, __m256d p) {return Sleef_powd4_u10avx(a, p);}
+        static inline __m256d simint_erf_vec4(__m256d x) {return Sleef_erfd4_u10avx(x);}
+    #elif defined SIMINT_AVX2
+        #include <sleefinline_avx2.h>
+        static inline __m256d simint_exp_vec4(__m256d x) {return Sleef_expd4_u10avx2(x);}
+        static inline __m256d simint_pow_vec4(__m256d a, __m256d p) {return Sleef_powd4_u10avx2(a, p);}
+        static inline __m256d simint_erf_vec4(__m256d x) {return Sleef_erfd4_u10avx2(x);}
+    #endif
+#elif __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 22
     __m256d _ZGVdN4v_exp(__m256d x);
     static inline __m256d simint_exp_vec4(__m256d x) { return _ZGVdN4v_exp(x); }
 
     __m256d _ZGVdN4vv_pow(__m256d a, __m256d p);
     static inline __m256d simint_pow_vec4(__m256d a, __m256d p) { return _ZGVdN4vv_pow(a, p); }
+    __m256d _ZGVcN4v_erf(__m256d x);
+    static inline __m256d simint_erf_vec4(__m256d x) { return _ZGVcN4v_erf(x); }
 #else
     static inline __m256d simint_exp_vec4(__m256d x)
     {
@@ -74,6 +88,8 @@ union simint_double4
         #define SIMINT_EXP(a)       simint_exp_vec4((a))
         #define SIMINT_POW(a,p)     simint_pow_vec4((a), (p))
     #endif
+
+    #define SIMINT_ERF(a) simint_erf_vec4((a))
 
 
     ////////////////////////////////////////

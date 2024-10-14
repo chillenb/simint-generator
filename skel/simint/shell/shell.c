@@ -606,7 +606,7 @@ void simint_create_multi_shellpair_zeroshell(int n,
                                     struct simint_multi_shellpair * P,
                                     int screen_method)
 {
-    static struct simint_shell *zeroshell;
+    static struct simint_shell zeroshell;
     static int zeroshell_initialized = 0;
     if (!zeroshell_initialized)
     {
