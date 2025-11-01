@@ -64,6 +64,10 @@ if(ENABLE_FORTRAN)
     target_compile_options(simint PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${SIMINT_Fortran_FLAGS}>)
 endif()
 
+if(SIMINT_ENABLE_IPO)
+    set_target_properties(simint PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
 target_link_libraries(simint PRIVATE ${SIMINT_LINK_FLAGS})
 
 if(${BUILD_SHARED_LIBS})

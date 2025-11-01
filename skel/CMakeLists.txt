@@ -15,6 +15,8 @@ set(SIMINT_MAXAM  "${SIMINT_MAXAM_AVAILABLE}" CACHE STRING "Maximum AM to use")
 set(SIMINT_MAXDER  "${SIMINT_MAXDER_AVAILABLE}" CACHE STRING "Maximum derivative level")
 
 option(SIMINT_STANDALONE "Create as much of a standalone library as possible")
+option(SIMINT_ENABLE_IPO "Enable interprocedural optimization" OFF)
+
 option(ENABLE_TESTS "Enable simint unit tests" ON)
 option(ENABLE_FORTRAN "Enable fortran interface" OFF)
 
