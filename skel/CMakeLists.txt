@@ -24,6 +24,9 @@ option(ENABLE_FORTRAN "Enable fortran interface" OFF)
 list(APPEND SIMINT_C_INCLUDES "${CMAKE_SOURCE_DIR}")
 list(APPEND SIMINT_C_INCLUDES "${CMAKE_BINARY_DIR}/stage") # some CMake-generated files go here
 
+set(SIMINT_LIBRARY_TYPE STATIC CACHE STRING "Type of library to build (STATIC or SHARED)")
+set_property(CACHE SIMINT_LIBRARY_TYPE PROPERTY STRINGS STATIC SHARED)
+
 # Default to "Release"
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type")
