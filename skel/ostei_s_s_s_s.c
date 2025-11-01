@@ -36,7 +36,7 @@ int ostei_s_s_s_s(struct simint_multi_shellpair const P,
     const SIMINT_DBLTYPE const_1 = SIMINT_DBLSET1(1);
     const SIMINT_DBLTYPE one_half = SIMINT_DBLSET1(0.5);
     
-    #if defined SIMINT_AVX512 || defined SIMINT_MICAVX512
+    #if defined SIMINT_COREAVX512 || defined SIMINT_MICAVX512
     // Buffer for contract_all()
     SIMINT_DBLTYPE ca_buf[8];
     double ca_res[8];
@@ -274,7 +274,7 @@ int ostei_s_s_s_s(struct simint_multi_shellpair const P,
                     ////////////////////////////////////
                     if(lastoffset == 0)
                     {
-                        #if defined SIMINT_AVX512 || defined SIMINT_MICAVX512
+                        #if defined SIMINT_COREAVX512 || defined SIMINT_MICAVX512
                         int new_idx = PRIM_PTR_INT__s_s_s_s - INT__s_s_s_s;
                         if ((ca_cnt > 0) && (new_idx == ca_res_idx[ca_cnt - 1]))
                         {
@@ -317,7 +317,7 @@ int ostei_s_s_s_s(struct simint_multi_shellpair const P,
         istart = iend;
     }  // close loop over ab
     
-    #if defined SIMINT_AVX512 || defined SIMINT_MICAVX512
+    #if defined SIMINT_COREAVX512 || defined SIMINT_MICAVX512
     for (int jj = 0; jj < ca_cnt; jj++)
         INT__s_s_s_s[ca_res_idx[jj]] += _mm512_reduce_add_pd(ca_buf[jj]);
     #endif 

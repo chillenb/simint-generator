@@ -1,5 +1,5 @@
 
-if("${CMAKE_C_COMPILER_ID}" MATCHES "Intel")
+if("${CMAKE_C_COMPILER_ID}" STREQUAL "Intel")
   ##########################################################################################
   # Globally-disabled diagnostics:
   # 10397 : Remark about creating .optrpt files
@@ -46,7 +46,8 @@ elseif("${CMAKE_C_COMPILER_ID}" MATCHES "PGI")
 
 
 elseif("${CMAKE_C_COMPILER_ID}" MATCHES "GNU" OR
-       "${CMAKE_C_COMPILER_ID}" MATCHES "Clang")
+       "${CMAKE_C_COMPILER_ID}" MATCHES "Clang" OR
+       "${CMAKE_C_COMPILER_ID}" MATCHES "IntelLLVM")
 
   list(APPEND SIMINT_C_FLAGS "-std=gnu11")
   list(APPEND SIMINT_C_FLAGS "-Wall;-Wextra;-pedantic")
@@ -58,17 +59,27 @@ elseif("${CMAKE_C_COMPILER_ID}" MATCHES "GNU" OR
   list(APPEND SIMINT_TESTS_CXX_FLAGS "-Wno-unused-parameter")
   list(APPEND SIMINT_TESTS_CXX_FLAGS "-Wno-unused-variable")
 
-  if("${CMAKE_C_COMPILER_ID}" MATCHES "GNU")
-    # OpenMP is enabled by default with clang
+
+  if("${CMAKE_C_COMPILER_ID}" MATCHES "IntelLLVM")
+    list(APPEND SIMINT_C_FLAGS "-qopenmp")
+    list(APPEND SIMINT_LINK_FLAGS "-qopenmp")
+    list(APPEND SIMINT_TESTS_CXX_FLAGS "-qopenmp")
+    list(APPEND SIMINT_TESTS_LINK_FLAGS "-qopenmp")
+  else()
     list(APPEND SIMINT_C_FLAGS "-fopenmp")
     list(APPEND SIMINT_LINK_FLAGS "-fopenmp")
     list(APPEND SIMINT_TESTS_CXX_FLAGS "-fopenmp")
     list(APPEND SIMINT_TESTS_LINK_FLAGS "-fopenmp")
+  endif()
 
+  if("${CMAKE_C_COMPILER_ID}" MATCHES "GNU")
     if(SIMINT_STANDALONE)
       list(APPEND SIMINT_LINK_FLAGS "-static-libgcc")
     endif()
-
+  elseif("${CMAKE_C_COMPILER_ID}" MATCHES "IntelLLVM")
+    if(SIMINT_STANDALONE)
+      list(APPEND SIMINT_LINK_FLAGS "-static-intel")
+    endif()
   endif()
 
 else()
@@ -83,14 +94,13 @@ set(SIMINT_VALID_VECTOR
      scalar-sse
      scalar-avx
      scalar-avx2
-     scalar-avx512
+     scalar-coreavx512
      scalar-micavx512
      sse
      avx
      avx2
-     avx512
      micavx512
-     commonavx512
+     coreavx512
      asimd
      sve
 )

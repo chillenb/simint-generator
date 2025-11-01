@@ -45,7 +45,7 @@ union simint_double8
     }
 #endif
 
-#if defined SIMINT_COMMONAVX512 || defined SIMINT_MICAVX512
+#if defined SIMINT_COREAVX512 || defined SIMINT_MICAVX512
 
     #define SIMINT_SIMD_LEN 8
 

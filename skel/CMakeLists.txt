@@ -1,6 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
-cmake_policy(SET CMP0048 NEW)  # project_VERSION* variables populated from project(... VERSION x.x.x) string
-
+cmake_minimum_required(VERSION 3.10)
 
 project(simint
         VERSION 0.8
@@ -28,7 +26,7 @@ list(APPEND SIMINT_C_INCLUDES "${CMAKE_BINARY_DIR}/stage") # some CMake-generate
 
 # Default to "Release"
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
-  set(CMAKE_BUILD_TYPE "Release")
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type")
 endif()
 
 # Compile the fortran interface?
@@ -42,8 +40,11 @@ endif()
 ##################################################
 include(cmake/DefaultFlags.cmake)
 
+message(STATUS "            CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
 message(STATUS "                  Maximum AM: ${SIMINT_MAXAM}")
 message(STATUS "          Maximum Derivative: ${SIMINT_MAXDER}")
+message(STATUS "               SIMINT_VECTOR: ${SIMINT_VECTOR}")
 message(STATUS "               CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 message(STATUS "             CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 message(STATUS "           SIMINT_C_INCLUDES: ${SIMINT_C_INCLUDES}")
@@ -77,8 +78,7 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/stage/
 
 set(PN ${PROJECT_NAME})
 
-    # GNUInstallDirs "DATADIR" wrong here; CMake search path wants "share".
-set(CMAKECONFIG_INSTALL_DIR "share/cmake/simint")
+set(CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/simint)
 
 configure_package_config_file(cmake/simintConfig.cmake.in
                               "${CMAKE_CURRENT_BINARY_DIR}/simintConfig.cmake"

@@ -56,14 +56,11 @@ This is done with the SIMINT_VECTOR variable
         Intel CPUs with AVX-2 and FMA support
             * Haswell
 
-    -DSIMINT_VECTOR=avx512
-         Intel SkyLake
+    -DSIMINT_VECTOR=coreavx512
+         Intel Xeon with AVX512 (Skylake or newer)
 
     -DSIMINT_VECTOR=micavx512
-        Intel KNL 
-
-    -DSIMINT_VECTOR=commonavx512
-        Intel KNL, Xeon, and Core processors that supports AVX-512
+        Intel KNL
 
     -DSIMINT_VECTOR=asimd
         ARMv8 ASIMD instruction set (experimental, tested some functions on A64FX)
