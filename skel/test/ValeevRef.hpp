@@ -6,6 +6,8 @@
 // forward declaration
 struct simint_shell;
 
+#include "simint/boys/potential_type.h"
+
 // initialize math stuff
 void ValeevRef_Init(void);
 void ValeevRef_Finalize(void);
@@ -18,5 +20,6 @@ void ValeevRef_Integrals(simint_shell const * const A, int nshellA,
                          simint_shell const * const B, int nshellB,
                          simint_shell const * const C, int nshellC,
                          simint_shell const * const D, int nshellD,
-                         double * const integrals, int deriv, bool normalize);
+                         double * const integrals, int deriv, bool normalize,
+                         simint_eri_potential_data const potential_data);
 

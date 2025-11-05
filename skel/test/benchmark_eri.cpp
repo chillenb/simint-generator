@@ -1,4 +1,7 @@
 #include <cstdio>
+#include <string>
+#include <cstring>
+#include <getopt.h>
 
 #include "simint/simint.h"
 #include "test/Common.hpp"
@@ -18,19 +21,60 @@ using namespace std::chrono;
 #define SIMINT_SCREEN 0
 #define SIMINT_SCREEN_TOL 0.0
 
+
+void usage()
+{
+    printf("Usage: benchmark_eri [options] inputfile\n");
+    printf("  -p [ERF|ERFC]    potential type (default: COULOMB)\n");
+    printf("  -w omega         range-separation parameter omega (default: 0.25)\n");
+    printf("  -h               display this help message\n");
+}
+
 int main(int argc, char ** argv)
 {
     // set up the function pointers
     simint_init();
 
-    if(argc != 2)
+    // parse command line
+  int opt;
+  double omega = 0.25;
+  simint_eri_potential_type pot_type = COULOMB_POTENTIAL;
+  while ((opt = getopt(argc, argv, "p:w:h")) != -1)
+  {
+     switch (opt)
+     {
+      case 'p':
+        if(strcmp(optarg, "ERFC") == 0)
+            pot_type = ERFC_COULOMB_POTENTIAL;
+        else if(strcmp(optarg, "ERF") == 0)
+            pot_type = ERF_COULOMB_POTENTIAL;
+        else
+        {
+            printf("Option p must be either 'ERF' or 'ERFC'! Got '%s'\n", optarg);
+            usage();
+            return 1;
+        }
+        break;
+      case 'w':
+        omega = strtod(optarg, NULL);
+        break;
+      case 'h':
+        usage();
+        return 0;
+      case '?':
+        printf("Unknown option: %c\n", optopt);
+        usage();
+        return 1;
+     }
+  }
+
+    if (optind + 1 != argc)
     {
-        printf("Give me 1 argument! I got %d\n", argc-1);
+        printf("Give me 1 positional argument! I got %d\n", argc - optind);
+        usage();
         return 1;
     }
-
-    // files to read
-    std::string basfile(argv[1]);
+    std::string basfile(argv[optind]);
 
     // number of threads
     #ifdef _OPENMP
@@ -174,7 +218,7 @@ int main(int argc, char ** argv)
 
             // actually calculate
             CLOCK(ticks_0, time_0);
-            int simint_ret = simint_compute_eri(&P, &Q, SIMINT_SCREEN_TOL, simint_work, res_ints);
+            int simint_ret = simint_compute_eri_ex(&P, &Q, SIMINT_SCREEN_TOL, simint_work, res_ints, {pot_type, omega});
             CLOCK(ticks_1, time_1);
             time_am.ticks_integrals += (ticks_1 - ticks_0);
             time_am.time_integrals += (time_1 - time_0);
@@ -192,7 +236,7 @@ int main(int argc, char ** argv)
                                 B, nshell2,
                                 C, nshell3,
                                 D, nshell4,
-                                res_ref, 0, false);
+                                res_ref, 0, false, {pot_type, omega});
             std::pair<double, double> err2 = CalcError(res_ints, res_ref, ncont1234);
 
             #ifdef _OPENMP

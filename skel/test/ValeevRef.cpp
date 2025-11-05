@@ -33,6 +33,9 @@
 #include "test/ValeevRef.hpp"
 #include "test/Common.hpp"
 
+#include "simint/boys/potential_type.h"
+
+
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define NUMDIFF_DELTA 1e-8
@@ -145,12 +148,42 @@ void Valeev_F(long double *F, int n, long double x)
     }
 }
 
+
+void Valeev_Gerf(long double *G, int n, long double rho, long double T, long double omega)
+{
+    long double omega2 = omega * omega;
+    long double rho_plus_omega2 = rho + omega2;
+    long double omega2_over_rho_plus_omega2 = omega2 / rho_plus_omega2;
+    long double T_omega2_over_rho_plus_omega2 = T * omega2_over_rho_plus_omega2;
+
+    Valeev_F(G, n, T_omega2_over_rho_plus_omega2);
+
+    long double factor = sqrtl(omega2_over_rho_plus_omega2);
+
+    for(int i = 0; i <= n; i++, factor *= omega2_over_rho_plus_omega2)
+    {
+        G[i] = factor * G[i];
+    }
+}
+
+void Valeev_Gerfc(long double *G, int n, long double rho, long double T, long double omega, long double *tmp)
+{
+
+    Valeev_F(G, n, T);
+
+    Valeev_Gerf(tmp, n, rho, T, omega);
+    for(int i = 0; i <= n; i++)
+    {
+        G[i] = G[i] - tmp[i];
+    }
+}
+
 static long double ValeevRef_eri(int l1, int m1, int n1, long double alpha1,
                                  const long double* A, int l2, int m2, int n2,
                                  long double alpha2, const long double* B, int l3, int m3,
                                  int n3, long double alpha3, const long double* C, int l4,
                                  int m4, int n4, long double alpha4, const long double* D,
-                                 int norm_flag)
+                                 int norm_flag, simint_eri_potential_data const potential_data)
 {
 
     const long double gammap = alpha1 + alpha2;
@@ -212,8 +245,23 @@ static long double ValeevRef_eri(int l1, int m1, int n1, long double alpha1,
     }
 
     F = init_array(l1 + l2 + l3 + l4 + m1 + m2 + m3 + m4 + n1 + n2 + n3 + n4 + 1);
+
+    if(potential_data.potential_type == simint_eri_potential_type::COULOMB_POTENTIAL)
+    {
     Valeev_F(F, l1 + l2 + l3 + l4 + m1 + m2 + m3 + m4 + n1 + n2 + n3 + n4,
            PQ2 * gammapq);
+    }
+    else if(potential_data.potential_type == simint_eri_potential_type::ERF_COULOMB_POTENTIAL)
+    {
+    Valeev_Gerf(F, l1 + l2 + l3 + l4 + m1 + m2 + m3 + m4 + n1 + n2 + n3 + n4,
+           gammapq, PQ2 * gammapq, potential_data.omega);
+    }
+    else if(potential_data.potential_type == simint_eri_potential_type::ERFC_COULOMB_POTENTIAL)
+    {
+    long double *tmp = init_array(l1 + l2 + l3 + l4 + m1 + m2 + m3 + m4 + n1 + n2 + n3 + n4 + 1);
+    Valeev_Gerfc(F, l1 + l2 + l3 + l4 + m1 + m2 + m3 + m4 + n1 + n2 + n3 + n4,
+           gammapq, PQ2 * gammapq, potential_data.omega, tmp);
+    }
 
     flp = init_array(l1 + l2 + 1);
     for (k = 0; k <= l1 + l2; k++)
@@ -438,7 +486,8 @@ static void ValeevRef_Deriv0(simint_shell const * const A, int nshellA,
                              simint_shell const * const B, int nshellB,
                              simint_shell const * const C, int nshellC,
                              simint_shell const * const D, int nshellD,
-                             double * const integrals, bool normalize)
+                             double * const integrals, bool normalize,
+                             simint_eri_potential_data const potential_data)
 {
     int inorm = (normalize ? 1 : 0);
 
@@ -486,7 +535,7 @@ static void ValeevRef_Deriv0(simint_shell const * const A, int nshellA,
                                 double val = (double)ValeevRef_eri(g1[0], g1[1], g1[2], A[i].alpha[m], vA,
                                                                    g2[0], g2[1], g2[2], B[j].alpha[n], vB,
                                                                    g3[0], g3[1], g3[2], C[k].alpha[o], vC,
-                                                                   g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm);
+                                                                   g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm, potential_data);
                                 myint += val * A[i].coef[m] * B[j].coef[n] * C[k].coef[o] * D[l].coef[p];
 
                             }
@@ -507,7 +556,8 @@ static void ValeevRef_Deriv1(simint_shell const * const A, int nshellA,
                              simint_shell const * const B, int nshellB,
                              simint_shell const * const C, int nshellC,
                              simint_shell const * const D, int nshellD,
-                             double * const integrals, bool normalize)
+                             double * const integrals, bool normalize,
+                             simint_eri_potential_data const potential_data)
 {
     int inorm = (normalize ? 1 : 0);
 
@@ -572,13 +622,13 @@ static void ValeevRef_Deriv1(simint_shell const * const A, int nshellA,
                                         valp = (double)ValeevRef_eri(gp[0], gp[1], gp[2], A[i].alpha[m], vA,
                                                                      g2[0], g2[1], g2[2], B[j].alpha[n], vB,
                                                                      g3[0], g3[1], g3[2], C[k].alpha[o], vC,
-                                                                     g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm);
+                                                                     g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm, potential_data);
 
                                         if(ValidGaussian(gm))
                                             valm = (double)ValeevRef_eri(gm[0], gm[1], gm[2], A[i].alpha[m], vA,
                                                                          g2[0], g2[1], g2[2], B[j].alpha[n], vB,
                                                                          g3[0], g3[1], g3[2], C[k].alpha[o], vC,
-                                                                         g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm);
+                                                                         g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm, potential_data);
 
                                         valp *= 2 * A[i].alpha[m];
                                         valm *= g1[d];  // ok, may be zero
@@ -598,12 +648,12 @@ static void ValeevRef_Deriv1(simint_shell const * const A, int nshellA,
                                         valp = (double)ValeevRef_eri(g1[0], g1[1], g1[2], A[i].alpha[m], vA,
                                                                      gp[0], gp[1], gp[2], B[j].alpha[n], vB,
                                                                      g3[0], g3[1], g3[2], C[k].alpha[o], vC,
-                                                                     g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm);
+                                                                     g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm, potential_data);
                                         if(ValidGaussian(gm))
                                             valm = (double)ValeevRef_eri(g1[0], g1[1], g1[2], A[i].alpha[m], vA,
                                                                          gm[0], gm[1], gm[2], B[j].alpha[n], vB,
                                                                          g3[0], g3[1], g3[2], C[k].alpha[o], vC,
-                                                                         g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm);
+                                                                         g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm, potential_data);
 
                                         valp *= 2 * B[j].alpha[n];
                                         valm *= g2[d];  // ok, may be zero
@@ -623,12 +673,12 @@ static void ValeevRef_Deriv1(simint_shell const * const A, int nshellA,
                                         valp = (double)ValeevRef_eri(g1[0], g1[1], g1[2], A[i].alpha[m], vA,
                                                                      g2[0], g2[1], g2[2], B[j].alpha[n], vB,
                                                                      gp[0], gp[1], gp[2], C[k].alpha[o], vC,
-                                                                     g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm);
+                                                                     g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm, potential_data);
                                         if(ValidGaussian(gm))
                                             valm = (double)ValeevRef_eri(g1[0], g1[1], g1[2], A[i].alpha[m], vA,
                                                                          g2[0], g2[1], g2[2], B[j].alpha[n], vB,
                                                                          gm[0], gm[1], gm[2], C[k].alpha[o], vC,
-                                                                         g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm);
+                                                                         g4[0], g4[1], g4[2], D[l].alpha[p], vD, inorm, potential_data);
 
                                         valp *= 2 * C[k].alpha[o];
                                         valm *= g3[d];  // ok, may be zero
@@ -662,7 +712,8 @@ void ValeevRef_NumDeriv1(simint_shell const * const A, int nshellA,
                          simint_shell const * const B, int nshellB,
                          simint_shell const * const C, int nshellC,
                          simint_shell const * const D, int nshellD,
-                         double * const integrals, bool normalize)
+                         double * const integrals, bool normalize,
+                         simint_eri_potential_data const potential_data)
 {
     const double delta = 1e-8;
     const int ncart_a = NCART(A->am);
@@ -688,85 +739,85 @@ void ValeevRef_NumDeriv1(simint_shell const * const A, int nshellA,
         // Ax
         copy_gaussian_move(A+i, &tmp_p, 0,  delta);
         copy_gaussian_move(A+i, &tmp_m, 0, -delta);
-        ValeevRef_Deriv0(&tmp_p, 1, B+j, 1, C+k, 1, D+l, 1, buf_p, normalize);
-        ValeevRef_Deriv0(&tmp_m, 1, B+j, 1, C+k, 1, D+l, 1, buf_m, normalize);
+        ValeevRef_Deriv0(&tmp_p, 1, B+j, 1, C+k, 1, D+l, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(&tmp_m, 1, B+j, 1, C+k, 1, D+l, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 0*ncart_abcd, delta);
 
         // Ay
         copy_gaussian_move(A+i, &tmp_p, 1,  delta);
         copy_gaussian_move(A+i, &tmp_m, 1, -delta);
-        ValeevRef_Deriv0(&tmp_p, 1, B+j, 1, C+k, 1, D+l, 1, buf_p, normalize);
-        ValeevRef_Deriv0(&tmp_m, 1, B+j, 1, C+k, 1, D+l, 1, buf_m, normalize);
+        ValeevRef_Deriv0(&tmp_p, 1, B+j, 1, C+k, 1, D+l, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(&tmp_m, 1, B+j, 1, C+k, 1, D+l, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 1*ncart_abcd, delta);
                          
         // Az
         copy_gaussian_move(A+i, &tmp_p, 2,  delta);
         copy_gaussian_move(A+i, &tmp_m, 2, -delta);
-        ValeevRef_Deriv0(&tmp_p, 1, B+j, 1, C+k, 1, D+l, 1, buf_p, normalize);
-        ValeevRef_Deriv0(&tmp_m, 1, B+j, 1, C+k, 1, D+l, 1, buf_m, normalize);
+        ValeevRef_Deriv0(&tmp_p, 1, B+j, 1, C+k, 1, D+l, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(&tmp_m, 1, B+j, 1, C+k, 1, D+l, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 2*ncart_abcd, delta);
 
         // Bx
         copy_gaussian_move(B+j, &tmp_p, 0,  delta);
         copy_gaussian_move(B+j, &tmp_m, 0, -delta);
-        ValeevRef_Deriv0(A+i, 1, &tmp_p, 1, C+k, 1, D+l, 1, buf_p, normalize);
-        ValeevRef_Deriv0(A+i, 1, &tmp_m, 1, C+k, 1, D+l, 1, buf_m, normalize);
+        ValeevRef_Deriv0(A+i, 1, &tmp_p, 1, C+k, 1, D+l, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(A+i, 1, &tmp_m, 1, C+k, 1, D+l, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 3*ncart_abcd, delta);
 
         // By
         copy_gaussian_move(B+j, &tmp_p, 1,  delta);
         copy_gaussian_move(B+j, &tmp_m, 1, -delta);
-        ValeevRef_Deriv0(A+i, 1, &tmp_p, 1, C+k, 1, D+l, 1, buf_p, normalize);
-        ValeevRef_Deriv0(A+i, 1, &tmp_m, 1, C+k, 1, D+l, 1, buf_m, normalize);
+        ValeevRef_Deriv0(A+i, 1, &tmp_p, 1, C+k, 1, D+l, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(A+i, 1, &tmp_m, 1, C+k, 1, D+l, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 4*ncart_abcd, delta);
 
         // Bz
         copy_gaussian_move(B+j, &tmp_p, 2,  delta);
         copy_gaussian_move(B+j, &tmp_m, 2, -delta);
-        ValeevRef_Deriv0(A+i, 1, &tmp_p, 1, C+k, 1, D+l, 1, buf_p, normalize);
-        ValeevRef_Deriv0(A+i, 1, &tmp_m, 1, C+k, 1, D+l, 1, buf_m, normalize);
+        ValeevRef_Deriv0(A+i, 1, &tmp_p, 1, C+k, 1, D+l, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(A+i, 1, &tmp_m, 1, C+k, 1, D+l, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 5*ncart_abcd, delta);
 
         // Cx
         copy_gaussian_move(C+k, &tmp_p, 0,  delta);
         copy_gaussian_move(C+k, &tmp_m, 0, -delta);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_p, 1, D+l, 1, buf_p, normalize);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_m, 1, D+l, 1, buf_m, normalize);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_p, 1, D+l, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_m, 1, D+l, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 6*ncart_abcd, delta);
 
         // Cy
         copy_gaussian_move(C+k, &tmp_p, 1,  delta);
         copy_gaussian_move(C+k, &tmp_m, 1, -delta);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_p, 1, D+l, 1, buf_p, normalize);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_m, 1, D+l, 1, buf_m, normalize);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_p, 1, D+l, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_m, 1, D+l, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 7*ncart_abcd, delta);
 
         // Cz
         copy_gaussian_move(C+k, &tmp_p, 2,  delta);
         copy_gaussian_move(C+k, &tmp_m, 2, -delta);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_p, 1, D+l, 1, buf_p, normalize);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_m, 1, D+l, 1, buf_m, normalize);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_p, 1, D+l, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, &tmp_m, 1, D+l, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 8*ncart_abcd, delta);
 
         // Dx
         copy_gaussian_move(D+l, &tmp_p, 0,  delta);
         copy_gaussian_move(D+l, &tmp_m, 0, -delta);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_p, 1, buf_p, normalize);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_m, 1, buf_m, normalize);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_p, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_m, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 9*ncart_abcd, delta);
 
         // Dy
         copy_gaussian_move(D+l, &tmp_p, 1,  delta);
         copy_gaussian_move(D+l, &tmp_m, 1, -delta);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_p, 1, buf_p, normalize);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_m, 1, buf_m, normalize);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_p, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_m, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 10*ncart_abcd, delta);
 
         // Dz
         copy_gaussian_move(D+l, &tmp_p, 2,  delta);
         copy_gaussian_move(D+l, &tmp_m, 2, -delta);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_p, 1, buf_p, normalize);
-        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_m, 1, buf_m, normalize);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_p, 1, buf_p, normalize, potential_data);
+        ValeevRef_Deriv0(A+i, 1, B+j, 1, C+k, 1, &tmp_m, 1, buf_m, normalize, potential_data);
         FormDeriv(ncart_abcd, buf_p, buf_m, integrals_ptr + 11*ncart_abcd, delta);
         
         integrals_ptr += ncart_abcd * 12;
@@ -781,17 +832,18 @@ void ValeevRef_Integrals(simint_shell const * const A, int nshellA,
                          simint_shell const * const B, int nshellB,
                          simint_shell const * const C, int nshellC,
                          simint_shell const * const D, int nshellD,
-                         double * const integrals, int deriv, bool normalize)
+                         double * const integrals, int deriv, bool normalize,
+                         simint_eri_potential_data const potential_data)
 {
     if(deriv == 0)
         ValeevRef_Deriv0(A, nshellA, B, nshellB, C, nshellC, D, nshellD,
-                         integrals, normalize);
+                         integrals, normalize, potential_data);
     else if(deriv == 1)
         ValeevRef_Deriv1(A, nshellA, B, nshellB, C, nshellC, D, nshellD,
-                         integrals, normalize);
+                         integrals, normalize, potential_data);
     else if(deriv == -1)
         ValeevRef_NumDeriv1(A, nshellA, B, nshellB, C, nshellC, D, nshellD,
-                            integrals, normalize);
+                            integrals, normalize, potential_data);
     else
         throw std::runtime_error("Invlalid derivative for ValeevRef");
 }

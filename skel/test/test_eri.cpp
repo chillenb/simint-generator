@@ -2,6 +2,7 @@
 #include <atomic>
 #include <iostream>
 #include <cmath>
+#include <cstring>
 
 #ifdef _OPENMP
   #include <omp.h>
@@ -11,9 +12,21 @@
 #include "test/Common.hpp"
 #include "test/ValeevRef.hpp"
 
+#include <getopt.h>
 
 #define SIMINT_SCREEN 0
 #define SIMINT_SCREEN_TOL 0.0
+
+
+
+void usage()
+{
+    printf("Usage: test_eri [options] inputfile\n");
+    printf("  -p [ERF|ERFC]    potential type (default: COULOMB)\n");
+    printf("  -w omega         range-separation parameter omega (default: 0.25)\n");
+    printf("  -h               display this help message\n");
+}
+
 
 
 typedef std::array<int, 4> QAM;
@@ -36,15 +49,49 @@ int main(int argc, char ** argv)
     // set up the function pointers
     simint_init();
 
+
     // parse command line
-    if(argc != 2)
+  int opt;
+  double omega = 0.25;
+  simint_eri_potential_type pot_type = COULOMB_POTENTIAL;
+  while ((opt = getopt(argc, argv, "p:w:h")) != -1)
+  {
+     switch (opt)
+     {
+      case 'p':
+        if(strcmp(optarg, "ERFC") == 0)
+            pot_type = ERFC_COULOMB_POTENTIAL;
+        else if(strcmp(optarg, "ERF") == 0)
+            pot_type = ERF_COULOMB_POTENTIAL;
+        else
+        {
+            printf("Option p must be either 'ERF' or 'ERFC'! Got '%s'\n", optarg);
+            usage();
+            return 1;
+        }
+        break;
+      case 'w':
+        omega = strtod(optarg, NULL);
+        break;
+      case 'h':
+        usage();
+        return 0;
+      case '?':
+        printf("Unknown option: %c\n", optopt);
+        usage();
+        return 1;
+     }
+  }
+
+    if (optind + 1 != argc)
     {
-        printf("Give me 1 argument! I got %d\n", argc-1);
+        printf("Give me 1 positional argument! I got %d\n", argc - optind);
+        usage();
         return 1;
     }
+    std::string basfile(argv[optind]);
 
-    // basis functions file to read
-    std::string basfile(argv[1]);
+
 
     // read in the shell info
     ShellMap shellmap = ReadBasis(basfile).first;
@@ -158,14 +205,14 @@ int main(int argc, char ** argv)
                                 &shellmap[j][b], nshell2,
                                 &shellmap[k][0], nshell3,
                                 &shellmap[l][0], nshell4,
-                                res_valeev, 0, false);
+                                res_valeev, 0, false, {pot_type, omega});
 
 
 
             ////////////////////////////
             // Calculate the integrals
             ////////////////////////////
-            int simint_ret = simint_compute_eri(&P, &Q, SIMINT_SCREEN_TOL, simint_work, res_simint);
+            int simint_ret = simint_compute_eri_ex(&P, &Q, SIMINT_SCREEN_TOL, simint_work, res_simint, {pot_type, omega});
 
             // if the return is < 0, it didn't calculate anything
             // (everything was screened)
