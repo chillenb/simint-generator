@@ -16,6 +16,7 @@ set(SIMINT_MAXDER  "${SIMINT_MAXDER_AVAILABLE}" CACHE STRING "Maximum derivative
 
 option(SIMINT_STANDALONE "Create as much of a standalone library as possible")
 option(SIMINT_ENABLE_IPO "Enable interprocedural optimization" OFF)
+option(SIMINT_USE_SVML "Use SVML math library calls where possible" OFF)
 
 option(ENABLE_TESTS "Enable simint unit tests" ON)
 option(ENABLE_FORTRAN "Enable fortran interface" OFF)
@@ -54,6 +55,7 @@ message(STATUS "               CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 message(STATUS "             CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 message(STATUS "           SIMINT_C_INCLUDES: ${SIMINT_C_INCLUDES}")
 message(STATUS "              SIMINT_C_FLAGS: ${SIMINT_C_FLAGS}")
+message(STATUS "       SIMINT_CONFIG_DEFINES: ${SIMINT_CONFIG_DEFINES}")
 
 if(ENABLE_FORTRAN)
     message(STATUS "        SIMINT_Fortran_FLAGS: ${SIMINT_Fortran_FLAGS}")

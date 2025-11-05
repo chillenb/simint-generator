@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <math.h>
 
+#include "simint/vectorization/vector_config.h"
 #include "simint/vectorization/intrinsics_avx.h"
 
 #ifdef __cplusplus
@@ -18,13 +19,36 @@ union simint_double8
 };
 
 
-#if __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 22
+#ifdef SIMINT_USE_SVML
+
+// Use SVML if available
+
+__m512d __svml_exp8_ha(__m512d x);
+__m512d __svml_pow8_ha(__m512d a, __m512d p);
+
+static inline __m512d simint_exp_vec8(__m512d x)
+{
+    return __svml_exp8_ha(x);
+}
+
+static inline __m512d simint_pow_vec8(__m512d a, __m512d p)
+{
+    return __svml_pow8_ha(a, p);
+}
+
+#elif __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 22
+
+// Otherwise, use glibc vector math if available
+
     __m512d _ZGVeN8v_exp(__m512d x);
     static inline __m512d simint_exp_vec8(__m512d x) { return _ZGVeN8v_exp(x); }
 
     __m512d _ZGVeN8vv_pow(__m512d a, __m512d p);
     static inline __m512d simint_pow_vec8(__m512d a, __m512d p) { return _ZGVeN8vv_pow(a, p); }
 #else
+
+// Fallback to scalar implementations
+
     static inline __m512d simint_exp_vec8(__m512d x)
     {
         union simint_double8 u = { x };
@@ -45,11 +69,13 @@ union simint_double8
     }
 #endif
 
+
 #if defined SIMINT_COREAVX512 || defined SIMINT_MICAVX512
 
     #define SIMINT_SIMD_LEN 8
 
     #define SIMINT_DBLTYPE         __m512d
+    #define SIMINT_I32VEC          __m256i
     #define SIMINT_DBLLOAD(p,i)    _mm512_load_pd((p) + (i))
     #define SIMINT_DBLSET1(a)      _mm512_set1_pd((a))
     #define SIMINT_NEG(a)          (SIMINT_MUL((a), (SIMINT_DBLSET1(-1.0)))) 
@@ -60,6 +86,13 @@ union simint_double8
     #define SIMINT_SQRT(a)         _mm512_sqrt_pd((a))
     #define SIMINT_FMADD(a,b,c)    _mm512_fmadd_pd((a), (b), (c))
     #define SIMINT_FMSUB(a,b,c)    _mm512_fmsub_pd((a), (b), (c))
+
+    #define SIMINT_ROUNDTO_I32(a)  _mm512_cvttpd_epi32((a))
+    #define SIMINT_I32_TO_PD(a)    _mm512_cvtepi32_pd((a))
+    #define SIMINT_MUL_I32(a,b)    _mm256_mullo_epi32((a), (b))
+    #define SIMINT_I32SET1(a)      _mm256_set1_epi32((a))
+
+    #define SIMINT_GATHER_DBL_BY_I32(vdx, base)  _mm512_i32gather_pd((vdx), (base), sizeof(double))
 
     #if defined __INTEL_COMPILER 
         #define SIMINT_EXP(a)       _mm512_exp_pd((a))
@@ -105,9 +138,9 @@ union simint_double8
         int ntrans   = ncart  / 8;
         int np_start = ntrans * 8;
         
-        double tmp[64];
-        __m512d dst[8];
-        
+        double tmp[64] __attribute__((aligned(64)));
+        __m512d dst[8] __attribute__((aligned(64)));
+
         // Transpose-Add part
         double *src_ptr = (double*)src;
         for (int it = 0; it < ntrans; it++)
@@ -208,10 +241,7 @@ union simint_double8
     static inline
     __m512d mask_load(int nlane, double * memaddr)
     {
-        union simint_double8 u = { _mm512_load_pd(memaddr) };
-        for(int n = nlane; n < SIMINT_SIMD_LEN; n++)
-            u.d[n] = 0.0;
-        return u.v;
+        return _mm512_maskz_loadu_pd((1 << nlane) - 1, memaddr);
     }
     
     //#define SIMINT_PRIM_SCREEN_STAT
@@ -225,7 +255,7 @@ union simint_double8
         return res;
     }
 
-#endif // defined SIMINT_AVX512 || defined SIMINT_MICAVX512
+#endif // defined SIMINT_COREAVX512 || defined SIMINT_MICAVX512
 
 #ifdef __cplusplus
 }

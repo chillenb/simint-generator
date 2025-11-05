@@ -50,6 +50,7 @@ union simint_double4
     #define SIMINT_SIMD_LEN 4
 
     #define SIMINT_DBLTYPE         __m256d
+    #define SIMINT_I32VEC          __m128i
     #define SIMINT_DBLLOAD(p,i)    _mm256_load_pd((p) + (i))
     #define SIMINT_DBLSET1(a)      _mm256_set1_pd((a))
     #define SIMINT_NEG(a)          (-(a))
@@ -59,12 +60,20 @@ union simint_double4
     #define SIMINT_DIV(a,b)        _mm256_div_pd((a), (b))
     #define SIMINT_SQRT(a)         _mm256_sqrt_pd((a))
 
+    #define SIMINT_ROUNDTO_I32(a)  _mm256_cvttpd_epi32((a))
+    #define SIMINT_I32_TO_PD(a)    _mm256_cvtepi32_pd((a))
+    #define SIMINT_MUL_I32(a,b)    _mm_mullo_epi32((a), (b))
+    #define SIMINT_I32SET1(a)      _mm_set1_epi32((a))
+
+
     #ifdef SIMINT_AVX2
       #define SIMINT_FMADD(a,b,c)  _mm256_fmadd_pd((a), (b), (c))
       #define SIMINT_FMSUB(a,b,c)  _mm256_fmsub_pd((a), (b), (c))
+      #define SIMINT_GATHER_DBL_BY_I32(vdx, base)  _mm256_i32gather_pd((vdx), (base), sizeof(double))
     #else
       #define SIMINT_FMADD(a,b,c)  SIMINT_ADD(SIMINT_MUL((a),(b)),(c))
       #define SIMINT_FMSUB(a,b,c)  SIMINT_SUB(SIMINT_MUL((a),(b)),(c))
+      #define SIMINT_GATHER_DBL_BY_I32(vdx, base)  gather_by_i32((vdx), (base))
     #endif
 
     #if defined __INTEL_COMPILER 
@@ -160,7 +169,7 @@ union simint_double4
                           __m256d const * restrict src,
                           double * restrict dest)
     {
-        #if defined __clang__ || defined __INTEL_COMPILER
+        #if defined __clang__ || defined __INTEL_COMPILER || defined __GNUC__
 
         int n, n4;
         const int nbatch = ncart/4;
@@ -222,7 +231,19 @@ union simint_double4
             u.d[n] = 0.0;
         return u.v;
     }
-    
+
+    static inline
+    __m256d gather_by_i32(__m128i vdx, double * base)
+    {
+        //fallback implementation using scalar loads
+        union simint_double4 res;
+        union { __m128i v; int32_t elts[4]; } uidx = { vdx };
+        for(int i = 0; i < SIMINT_SIMD_LEN; i++)
+            res.d[i] = *(base + uidx.elts[i]);
+        return res.v;
+    }
+
+
     //#define SIMINT_PRIM_SCREEN_STAT
     static inline
     int count_prim_screen_survival(__m256d screen_val, const double screen_tol)

@@ -136,4 +136,13 @@ else()
     endif()
 endif()
 
+
+if(SIMINT_USE_SVML)
+  list(APPEND SIMINT_CONFIG_DEFINES "SIMINT_USE_SVML")
+  if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
+     "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+    list(APPEND SIMINT_LINK_FLAGS "libsvml.a" "libirc.a")
+  endif()
+endif()
+
 list(APPEND SIMINT_Fortran_FLAGS "-I${CMAKE_CURRENT_BINARY_DIR}/simint")
