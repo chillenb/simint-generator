@@ -10,6 +10,8 @@ struct simint_shell;
 void ValeevRef_Init(void);
 void ValeevRef_Finalize(void);
 
+// boys function
+void Valeev_F(long double *F, int n, long double x);
 
 // Calculating reference integrals
 void ValeevRef_Integrals(simint_shell const * const A, int nshellA,

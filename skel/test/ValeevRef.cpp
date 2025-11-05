@@ -94,7 +94,7 @@ static void FormDeriv(int ncart_abcd,
 
 
 
-static void Valeev_F(long double *F, int n, long double x)
+void Valeev_F(long double *F, int n, long double x)
 {
     int i, m;
     int m2;
