@@ -36,37 +36,37 @@ int main(int argc, char ** argv)
     simint_init();
 
     // parse command line
-  int opt;
-  double omega = 0.25;
-  simint_eri_potential_type pot_type = COULOMB_POTENTIAL;
-  while ((opt = getopt(argc, argv, "p:w:h")) != -1)
-  {
-     switch (opt)
-     {
-      case 'p':
-        if(strcmp(optarg, "ERFC") == 0)
-            pot_type = ERFC_COULOMB_POTENTIAL;
-        else if(strcmp(optarg, "ERF") == 0)
-            pot_type = ERF_COULOMB_POTENTIAL;
-        else
+    int opt;
+    double omega = 0.25;
+    simint_eri_potential_type pot_type = COULOMB_POTENTIAL;
+    while ((opt = getopt(argc, argv, "p:w:h")) != -1)
+    {
+        switch (opt)
         {
-            printf("Option p must be either 'ERF' or 'ERFC'! Got '%s'\n", optarg);
+        case 'p':
+            if(strcmp(optarg, "ERFC") == 0)
+                pot_type = ERFC_COULOMB_POTENTIAL;
+            else if(strcmp(optarg, "ERF") == 0)
+                pot_type = ERF_COULOMB_POTENTIAL;
+            else
+            {
+                printf("Option p must be either 'ERF' or 'ERFC'! Got '%s'\n", optarg);
+                usage();
+                return 1;
+            }
+            break;
+        case 'w':
+            omega = strtod(optarg, NULL);
+            break;
+        case 'h':
+            usage();
+            return 0;
+        case '?':
+            printf("Unknown option: %c\n", optopt);
             usage();
             return 1;
         }
-        break;
-      case 'w':
-        omega = strtod(optarg, NULL);
-        break;
-      case 'h':
-        usage();
-        return 0;
-      case '?':
-        printf("Unknown option: %c\n", optopt);
-        usage();
-        return 1;
-     }
-  }
+    }
 
     if (optind + 1 != argc)
     {

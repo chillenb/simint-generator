@@ -70,6 +70,13 @@ int simint_compute_eri_ex(struct simint_multi_shellpair const * P,
                            double * restrict integrals,
                            struct simint_eri_potential_data potential_data);
 
+int simint_compute_eri_deriv_ex(int deriv,
+                             struct simint_multi_shellpair const * P,
+                             struct simint_multi_shellpair const * Q,
+                             double screen_tol,
+                             double * restrict work,
+                             double * restrict integrals,
+                             struct simint_eri_potential_data potential_data);
 #ifdef __cplusplus
 }
 #endif

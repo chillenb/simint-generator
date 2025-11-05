@@ -184,7 +184,7 @@ void OSTEIDeriv1_Writer::Write_Permute_(QAM am, bool swap12, bool swap34) const
     std::string fname = FunctionName_(am);
     os_ << indent1 << "int ret = " << fname
         << "(" << P_var << ", " << Q_var << ", screen_tol, "
-        << "work, " << ArrVarName(permuted) << ");\n";
+        << "work, " << ArrVarName(permuted) << ", potential_data);\n";
 
 
     size_t ncart_abcd = NCART(am);
@@ -883,16 +883,15 @@ void OSTEIDeriv1_Writer::Write_Full_(void) const
     os_ << indent5 << "// Maximum v value: " << (info_.L()+1) << "\n";
     os_ << indent5 << "//////////////////////////////////////////////\n";
     os_ << indent5 << "// The parameter to the Fjt function\n";
-    os_ << indent5 << "const SIMINT_DBLTYPE F_x = SIMINT_MUL(R2, alpha);\n";
+    os_ << indent5 << "// const SIMINT_DBLTYPE F_x = SIMINT_MUL(R2, alpha);\n";
     os_ << "\n";
     os_ << "\n";
 
     // we need to zero out any that are beyond the end of the batch (that's been clipped)
     os_ << indent5 << "const SIMINT_DBLTYPE Q_prefac = mask_load(nlane, Q.prefac + j);\n";
     os_ << "\n\n";
-    os_ << indent5 << "boys_F_split(" << PrimVarName({0,0,0,0})
-                   << ", F_x, " << (info_.L()+1) << ");\n";
-
+    os_ << indent5 << "generalized_boys_Gn(" << PrimVarName({0,0,0,0})
+                   << ", R2, alpha, potential_data, " << info_.L() + 1<< ");\n";
 
     // prefac = sqrt(1/PQalpha_sum) * P_prefac * Q_prefac
     os_ << indent5 << "SIMINT_DBLTYPE prefac = SIMINT_SQRT(one_over_PQalpha_sum);\n";

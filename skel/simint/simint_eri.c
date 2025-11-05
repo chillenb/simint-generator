@@ -32,6 +32,16 @@ int simint_compute_eri_deriv(int deriv,
     return simint_compute_ostei_deriv(deriv, P, Q, screen_tol, work, integrals, default_potential_data);
 }
 
+int simint_compute_eri_deriv_ex(int deriv,
+                             struct simint_multi_shellpair const * P,
+                             struct simint_multi_shellpair const * Q,
+                             double screen_tol,
+                             double * restrict work,
+                             double * restrict integrals,
+                             struct simint_eri_potential_data potential_data)
+{
+    return simint_compute_ostei_deriv(deriv, P, Q, screen_tol, work, integrals, potential_data);
+}
 
 size_t simint_eri_worksize(int derorder, int maxam)
 {
