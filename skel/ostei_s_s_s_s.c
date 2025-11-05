@@ -262,8 +262,7 @@ int ostei_s_s_s_s(struct simint_multi_shellpair const P,
 
                     const SIMINT_DBLTYPE Q_prefac = mask_load(nlane, Q.prefac + j);
 
-
-                    boys_F_split(PRIM_INT__s_s_s_s, F_x, 0);
+                    generalized_boys_Gn(PRIM_INT__s_s_s_s, R2, alpha, potential_data, 0);
                     SIMINT_DBLTYPE prefac = SIMINT_SQRT(one_over_PQalpha_sum);
                     prefac = SIMINT_MUL(SIMINT_MUL(P_prefac, Q_prefac), prefac);
                     for(n = 0; n <= 0; n++)

@@ -1,24 +1,12 @@
 #pragma once
 
 #include "simint/shell/shell.h"
+#include "simint/boys/potential_type.h"
 
 #ifdef __cplusplus
 #include "simint/cpp_restrict.hpp"
 extern "C" {
 #endif
-
-enum simint_eri_potential_type {
-    COULOMB_POTENTIAL = 0,
-    ERF_COULOMB_POTENTIAL = 1,
-    ERFC_COULOMB_POTENTIAL = 2
-};
-
-struct simint_eri_potential_data
-{
-    enum simint_eri_potential_type potential_type;
-    double omega; // for erf and erfc potentials
-};
-
 
 //! A pointer to a function that calculates TEI utilizing a shared workspace
 typedef int (*simint_osteifunc)(struct simint_multi_shellpair const,

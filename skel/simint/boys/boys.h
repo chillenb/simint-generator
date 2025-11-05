@@ -5,6 +5,7 @@
 #include "simint/boys/boys_taylor.h"
 #include "simint/boys/boys_shortgrid.h"
 #include "simint/boys/boys_long.h"
+#include "simint/boys/potential_type.h"
 
 #ifdef __cplusplus
 #include "simint/cpp_restrict.hpp"
@@ -116,6 +117,38 @@ void ahlrichs_Gn_erf(SIMINT_DBLTYPE * restrict F,
     {
         F[i] = SIMINT_MUL(factor, F[i]);
         factor = SIMINT_MUL(factor, omega2_over_alpha_plus_omega2);
+    }
+}
+
+
+static inline
+void generalized_boys_Gn(SIMINT_DBLTYPE * restrict F,
+                            SIMINT_DBLTYPE R2,
+                            SIMINT_DBLTYPE alpha,
+                            struct simint_eri_potential_data const potential_data,
+                            int n)
+{
+    SIMINT_DBLTYPE tmp[BOYS_SHORTGRID_MAXN+1] SIMINT_ALIGN_ARRAY_DBL;
+    switch(potential_data.potential_type)
+    {
+        case COULOMB_POTENTIAL:
+            boys_F_split(F, SIMINT_MUL(R2, alpha), n);
+            break;
+        case ERF_COULOMB_POTENTIAL:
+            ahlrichs_Gn_erf(F, R2, alpha, potential_data.omega, n);
+            break;
+        case ERFC_COULOMB_POTENTIAL:
+            boys_F_split(F, SIMINT_MUL(R2, alpha), n);
+            ahlrichs_Gn_erf(tmp, R2, alpha, potential_data.omega, n);
+            for(int i = 0; i <= n; i++)
+            {
+                F[i] = SIMINT_SUB(F[i], tmp[i]);
+            }
+            break;
+        default:
+            for(int i = 0; i <= n; i++)
+                F[i] = SIMINT_DBLSET1((double) NAN);
+            break;
     }
 }
 

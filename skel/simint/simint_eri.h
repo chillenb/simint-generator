@@ -1,6 +1,7 @@
 #pragma once
 
 #include "simint/shell/shell.h"
+#include "simint/ostei/ostei.h"
 #include "simint/ostei/ostei_config.h"
 
 #ifdef __cplusplus
@@ -61,6 +62,13 @@ size_t simint_eri_worksize(int derorder, int maxam);
  */
 size_t simint_eri_workmem(int derorder, int maxam);
 
+
+int simint_compute_eri_ex(struct simint_multi_shellpair const * P,
+                           struct simint_multi_shellpair const * Q,
+                           double screen_tol,
+                           double * restrict work,
+                           double * restrict integrals,
+                           struct simint_eri_potential_data potential_data);
 
 #ifdef __cplusplus
 }
