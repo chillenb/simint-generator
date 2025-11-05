@@ -34,7 +34,7 @@ x = mp.mpf(0)
 F = []
 pts = []
 
-while x < maxx:
+while x < maxx + (inc/2):
   F2 = BoysValue(maxn, x) 
   F.append(F2)
   pts.append(x)
