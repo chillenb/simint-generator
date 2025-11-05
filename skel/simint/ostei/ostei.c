@@ -11,7 +11,8 @@ int simint_compute_ostei(struct simint_multi_shellpair const * P,
                          struct simint_multi_shellpair const * Q,
                          double screen_tol,
                          double * restrict work,
-                         double * restrict integrals)
+                         double * restrict integrals,
+                         struct simint_eri_potential_data const potential_data)
 {
     // don't forget that we don't include the square root in the screen values
     // stored in the shell pair
@@ -20,7 +21,7 @@ int simint_compute_ostei(struct simint_multi_shellpair const * P,
         return -1;
 
     return simint_osteifunc_array[0][P->am1][P->am2][Q->am1][Q->am2](*P, *Q,
-                                                screen_tol2, work, integrals);
+                                                screen_tol2, work, integrals, potential_data);
 }
 
 
@@ -29,7 +30,8 @@ int simint_compute_ostei_deriv(int deriv,
                                struct simint_multi_shellpair const * Q,
                                double screen_tol,
                                double * restrict work,
-                               double * restrict integrals)
+                               double * restrict integrals,
+                               struct simint_eri_potential_data const potential_data)
 {
     // don't forget that we don't include the square root in the screen values
     // stored in the shell pair
@@ -38,6 +40,6 @@ int simint_compute_ostei_deriv(int deriv,
         return -1;
 
     return simint_osteifunc_array[deriv][P->am1][P->am2][Q->am1][Q->am2](*P, *Q,
-                                                  screen_tol2, work, integrals);
+                                                  screen_tol2, work, integrals, potential_data);
 }
 

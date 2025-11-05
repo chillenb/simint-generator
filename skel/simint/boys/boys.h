@@ -92,6 +92,33 @@ void boys_F_split(SIMINT_DBLTYPE * restrict F,
 }
 
 
+static inline
+void ahlrichs_Gn_erf(SIMINT_DBLTYPE * restrict F,
+                     SIMINT_DBLTYPE R2,
+                     SIMINT_DBLTYPE alpha,
+                     const double omega,
+                     int n)
+{
+    const SIMINT_DBLTYPE omega_vec = SIMINT_DBLSET1(omega);
+    const SIMINT_DBLTYPE x = SIMINT_MUL(R2, alpha);
+    const SIMINT_DBLTYPE omega2 = SIMINT_MUL(omega_vec, omega_vec);
+    const SIMINT_DBLTYPE alpha_plus_omega2 = SIMINT_ADD(alpha, omega2);
+    const SIMINT_DBLTYPE omega2_over_alpha_plus_omega2 = SIMINT_DIV(omega2, alpha_plus_omega2);
+
+    const SIMINT_DBLTYPE x_omega2_over_alpha_plus_omega2 = SIMINT_MUL(x, omega2_over_alpha_plus_omega2);
+
+    boys_F_split(F, x_omega2_over_alpha_plus_omega2, n);
+
+    SIMINT_DBLTYPE factor = SIMINT_SQRT(omega2_over_alpha_plus_omega2);
+
+
+    for(int i = 0; i <= n; i++)
+    {
+        F[i] = SIMINT_MUL(factor, F[i]);
+        factor = SIMINT_MUL(factor, omega2_over_alpha_plus_omega2);
+    }
+}
+
 
 #ifdef __cplusplus
 }

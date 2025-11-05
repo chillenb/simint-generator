@@ -118,7 +118,8 @@ std::string OSTEI_Writer::FunctionPrototype_(QAM am) const
     ss << indent << "struct simint_multi_shellpair const Q,\n";
     ss << indent << "double screen_tol,\n";
     ss << indent << "double * const restrict work,\n";
-    ss << indent << "double * const restrict " << ArrVarName(am) << ")";
+    ss << indent << "double * const restrict " << ArrVarName(am) << ",\n";
+    ss << indent << "struct simint_eri_potential_data const potential_data)";
     return ss.str();
 }
 
@@ -186,7 +187,7 @@ void OSTEI_Writer::Write_Permute_(QAM am, bool swap12, bool swap34) const
     std::string fname = FunctionName_(am);
     os_ << indent1 << "int ret = " << fname
         << "(" << P_var << ", " << Q_var << ", screen_tol, "
-        << "work, " << ArrVarName(permuted) << ");\n";
+        << "work, " << ArrVarName(permuted) << ", potential_data);\n";
 
 
     if(!IsSpecialPermutation_(permuted))

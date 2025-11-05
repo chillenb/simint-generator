@@ -113,7 +113,8 @@ std::string OSTEIDeriv1_Writer::FunctionPrototype_(QAM am) const
     ss << indent << "struct simint_multi_shellpair const Q,\n";
     ss << indent << "double screen_tol,\n";
     ss << indent << "double * const restrict work,\n";
-    ss << indent << "double * const restrict " << ArrVarName(am) << ")";
+    ss << indent << "double * const restrict " << ArrVarName(am) << ",\n";
+    ss << indent << "struct simint_eri_potential_data const potential_data)";
     return ss.str();
 }
 

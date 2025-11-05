@@ -7,7 +7,8 @@ int simint_compute_eri(struct simint_multi_shellpair const * P,
                        double * restrict work,
                        double * restrict integrals)
 {
-    return simint_compute_ostei(P, Q, screen_tol, work, integrals);
+    struct simint_eri_potential_data default_potential_data = { COULOMB_POTENTIAL, 0.0 };
+    return simint_compute_ostei(P, Q, screen_tol, work, integrals, default_potential_data);
 }
 
 int simint_compute_eri_deriv(int deriv,
@@ -17,7 +18,8 @@ int simint_compute_eri_deriv(int deriv,
                              double * restrict work,
                              double * restrict integrals)
 {
-    return simint_compute_ostei_deriv(deriv, P, Q, screen_tol, work, integrals);
+    struct simint_eri_potential_data default_potential_data = { COULOMB_POTENTIAL, 0.0 };
+    return simint_compute_ostei_deriv(deriv, P, Q, screen_tol, work, integrals, default_potential_data);
 }
 
 

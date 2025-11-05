@@ -11,7 +11,8 @@ int ostei_s_s_s_s(struct simint_multi_shellpair const P,
                   struct simint_multi_shellpair const Q,
                   double screen_tol,
                   double * const restrict work,
-                  double * const restrict INT__s_s_s_s)
+                  double * const restrict INT__s_s_s_s,
+                  struct simint_eri_potential_data const potential_data)
 {
 
     SIMINT_ASSUME_ALIGN_DBL(work);
