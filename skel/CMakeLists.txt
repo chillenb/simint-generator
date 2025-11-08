@@ -16,7 +16,8 @@ set(SIMINT_MAXDER  "${SIMINT_MAXDER_AVAILABLE}" CACHE STRING "Maximum derivative
 
 option(SIMINT_STANDALONE "Create as much of a standalone library as possible")
 option(SIMINT_ENABLE_IPO "Enable interprocedural optimization" OFF)
-option(SIMINT_USE_SVML "Use SVML math library calls where possible" OFF)
+option(SIMINT_USE_SVML "Use SVML math library calls where possible (recommended)" OFF)
+option(SIMINT_BOYS_RATIONAL "Use the fast approximation for Boys function due to Laikov (significant speedup, some precision loss)" OFF)
 
 option(ENABLE_TESTS "Enable simint unit tests" ON)
 option(ENABLE_FORTRAN "Enable fortran interface" OFF)

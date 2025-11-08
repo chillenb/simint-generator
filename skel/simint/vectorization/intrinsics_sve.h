@@ -68,6 +68,15 @@ static inline vec_d simint_exp_vec(vec_d x)
     return res.v;
 }
 
+static inline vec_d simint_erf_vec(vec_d x)
+{
+    union simint_double_sve u = { x };
+    union simint_double_sve res;
+    for(int i = 0; i < SIMD_LEN_D; i++)
+        res.d[i] = erf(u.d[i]);
+    return res.v;
+}
+
 static inline vec_d simint_pow_vec(vec_d a, vec_d p)
 {
     union simint_double_sve ua = { a };
@@ -96,6 +105,7 @@ static inline vec_d simint_pow_vec(vec_d a, vec_d p)
     #define SIMINT_FMSUB(a,b,c)    svnmsb_f64_z(PTRUE64B, (a), (b), (c))
 
     #define SIMINT_EXP(a)          simint_exp_vec((a))
+    #define SIMINT_ERF(a)          simint_erf_vec((a))
     #define SIMINT_POW(a,p)        simint_pow_vec((a), (p))
 
 

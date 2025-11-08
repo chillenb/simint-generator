@@ -22,6 +22,9 @@ union simint_double4
     __m256d _ZGVdN4v_exp(__m256d x);
     static inline __m256d simint_exp_vec4(__m256d x) { return _ZGVdN4v_exp(x); }
 
+    __m256d _ZGVdN4v_erf(__m256d x);
+    static inline __m256d simint_erf_vec4(__m256d x) { return _ZGVdN4v_erf(x); }
+
     __m256d _ZGVdN4vv_pow(__m256d a, __m256d p);
     static inline __m256d simint_pow_vec4(__m256d a, __m256d p) { return _ZGVdN4vv_pow(a, p); }
 #else
@@ -31,6 +34,15 @@ union simint_double4
         union simint_double4 res;
         for(int i = 0; i < 4; i++)
             res.d[i] = exp(u.d[i]);
+        return res.v;
+    }
+
+    static inline __m256d simint_erf_vec4(__m256d x)
+    {
+        union simint_double4 u = { x };
+        union simint_double4 res;
+        for(int i = 0; i < 4; i++)
+            res.d[i] = erf(u.d[i]);
         return res.v;
     }
 
@@ -69,7 +81,7 @@ union simint_double4
     #ifdef SIMINT_AVX2
       #define SIMINT_FMADD(a,b,c)  _mm256_fmadd_pd((a), (b), (c))
       #define SIMINT_FMSUB(a,b,c)  _mm256_fmsub_pd((a), (b), (c))
-      #define SIMINT_GATHER_DBL_BY_I32(vdx, base)  _mm256_i32gather_pd((vdx), (base), sizeof(double))
+      #define SIMINT_GATHER_DBL_BY_I32(vdx, base)  _mm256_i32gather_pd((base), (vdx), sizeof(double))
     #else
       #define SIMINT_FMADD(a,b,c)  SIMINT_ADD(SIMINT_MUL((a),(b)),(c))
       #define SIMINT_FMSUB(a,b,c)  SIMINT_SUB(SIMINT_MUL((a),(b)),(c))
@@ -78,9 +90,11 @@ union simint_double4
 
     #if defined __INTEL_COMPILER 
         #define SIMINT_EXP(a)       _mm256_exp_pd((a))
+        #define SIMINT_ERF(a)       _mm256_erf_pd((a))
         #define SIMINT_POW(a,p)     _mm256_pow_pd((a), (p))
     #else
         #define SIMINT_EXP(a)       simint_exp_vec4((a))
+        #define SIMINT_ERF(a)       simint_erf_vec4((a))
         #define SIMINT_POW(a,p)     simint_pow_vec4((a), (p))
     #endif
 

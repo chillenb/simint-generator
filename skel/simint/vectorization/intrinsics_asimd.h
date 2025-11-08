@@ -26,6 +26,15 @@ static inline float64x2_t simint_exp_vec2(float64x2_t x)
     return res.v;
 }
 
+static inline float64x2_t simint_erf_vec2(float64x2_t x)
+{
+    union simint_double2 u = { x };
+    union simint_double2 res;
+    for(int i = 0; i < 2; i++)
+        res.d[i] = erf(u.d[i]);
+    return res.v;
+}
+
 static inline float64x2_t simint_pow_vec2(float64x2_t a, float64x2_t p)
 {
     union simint_double2 ua = { a };
@@ -54,6 +63,7 @@ static inline float64x2_t simint_pow_vec2(float64x2_t a, float64x2_t p)
     #define SIMINT_FMSUB(a,b,c)    vnegq_f64(vfmsq_f64((c), (a), (b)))
 
     #define SIMINT_EXP(a)          simint_exp_vec2((a))
+    #define SIMINT_ERF(a)          simint_erf_vec2((a))
     #define SIMINT_POW(a,p)        simint_pow_vec2((a), (p))
 
 

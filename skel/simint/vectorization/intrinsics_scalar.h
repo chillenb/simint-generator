@@ -21,6 +21,7 @@ extern "C" {
     #define SIMINT_FMADD(a,b,c)    SIMINT_ADD(SIMINT_MUL((a),(b)),(c))
     #define SIMINT_FMSUB(a,b,c)    SIMINT_SUB(SIMINT_MUL((a),(b)),(c))
     #define SIMINT_EXP(a)          exp((a))
+    #define SIMINT_ERF(a)          erf((a))
     #define SIMINT_POW(a, p)       pow((a), (p))
 
 

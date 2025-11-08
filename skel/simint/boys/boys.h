@@ -3,6 +3,7 @@
 #include "simint/vectorization/vectorization.h"
 
 #include "simint/boys/boys_taylor.h"
+#include "simint/boys/boys_rational.h"
 #include "simint/boys/boys_shortgrid.h"
 #include "simint/boys/boys_long.h"
 #include "simint/boys/potential_type.h"
@@ -25,11 +26,11 @@ void boys_F_split_small_n(SIMINT_DBLTYPE * restrict F,
     else if(vector_max(x) < BOYS_SHORTGRID_MAXX)
         boys_F_taylor_vec(F, x, n);
     else
+        boys_F_rational_vec(F, x, n);
     #endif
     {
         double * restrict Fd = (double *)F;
         double const * restrict xd = (double *)(&x);
-
         for(int i = 0; i < SIMINT_SIMD_LEN; i++)
         {
             if(xd[i] < BOYS_SHORTGRID_MAXX)
@@ -81,15 +82,36 @@ void boys_F_split_large_n(SIMINT_DBLTYPE * restrict F,
     }
 }
 
+
 static inline
 void boys_F_split(SIMINT_DBLTYPE * restrict F,
                   SIMINT_DBLTYPE x,
                   int n)
 {
+#ifdef SIMINT_BOYS_RATIONAL
+// use the rational interpolation method
+    if(vector_min(x) > BOYS_SHORTGRID_MAXX)
+        // we use the asymptotic expansion for large x
+        boys_F_long_vec(F, x, n);
+    else
+    {
+        if (n>0)
+            boys_F_rational_vec(F, x, n);
+        else {
+            // case n=0, use erf
+            SIMINT_DBLTYPE sqrtx = SIMINT_SQRT(x);
+            SIMINT_DBLTYPE erfval = SIMINT_ERF(sqrtx);
+            SIMINT_DBLTYPE extra = SIMINT_DIV(SIMINT_SQRT(SIMINT_DBLSET1(M_PI/4)), sqrtx);
+            F[0] = SIMINT_MUL(extra, erfval);
+        }
+    }
+#else
+    // look-up taylor method
     if(n < 4)
         boys_F_split_small_n(F, x, n);
     else
         boys_F_split_large_n(F, x, n);
+#endif
 }
 
 

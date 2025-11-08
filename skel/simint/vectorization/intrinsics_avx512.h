@@ -24,11 +24,17 @@ union simint_double8
 // Use SVML if available
 
 __m512d __svml_exp8_ha(__m512d x);
+__m512d __svml_erf8_ha(__m512d x);
 __m512d __svml_pow8_ha(__m512d a, __m512d p);
 
 static inline __m512d simint_exp_vec8(__m512d x)
 {
     return __svml_exp8_ha(x);
+}
+
+static inline __m512d simint_erf_vec8(__m512d x)
+{
+    return __svml_erf8_ha(x);
 }
 
 static inline __m512d simint_pow_vec8(__m512d a, __m512d p)
@@ -43,6 +49,9 @@ static inline __m512d simint_pow_vec8(__m512d a, __m512d p)
     __m512d _ZGVeN8v_exp(__m512d x);
     static inline __m512d simint_exp_vec8(__m512d x) { return _ZGVeN8v_exp(x); }
 
+    __m512d _ZGVeN8v_erf(__m512d x);
+    static inline __m512d simint_erf_vec8(__m512d x) { return _ZGVeN8v_erf(x); }
+
     __m512d _ZGVeN8vv_pow(__m512d a, __m512d p);
     static inline __m512d simint_pow_vec8(__m512d a, __m512d p) { return _ZGVeN8vv_pow(a, p); }
 #else
@@ -55,6 +64,15 @@ static inline __m512d simint_pow_vec8(__m512d a, __m512d p)
         union simint_double8 res;
         for(int i = 0; i < 8; i++)
             res.d[i] = exp(u.d[i]);
+        return res.v;
+    }
+
+    static inline __m512d simint_erf_vec8(__m512d x)
+    {
+        union simint_double8 u = { x };
+        union simint_double8 res;
+        for(int i = 0; i < 8; i++)
+            res.d[i] = erf(u.d[i]);
         return res.v;
     }
 
@@ -96,9 +114,11 @@ static inline __m512d simint_pow_vec8(__m512d a, __m512d p)
 
     #if defined __INTEL_COMPILER 
         #define SIMINT_EXP(a)       _mm512_exp_pd((a))
+        #define SIMINT_ERF(a)       _mm512_erf_pd((a))
         #define SIMINT_POW(a,p)     _mm512_pow_pd((a), (p))
     #else
         #define SIMINT_EXP(a)       simint_exp_vec8((a))
+        #define SIMINT_ERF(a)       simint_erf_vec8((a))
         #define SIMINT_POW(a,p)     simint_pow_vec8((a), (p))
     #endif
 
