@@ -102,7 +102,12 @@ void boys_F_split(SIMINT_DBLTYPE * restrict F,
             SIMINT_DBLTYPE sqrtx = SIMINT_SQRT(x);
             SIMINT_DBLTYPE erfval = SIMINT_ERF(sqrtx);
             SIMINT_DBLTYPE extra = SIMINT_DIV(SIMINT_SQRT(SIMINT_DBLSET1(M_PI/4)), sqrtx);
-            F[0] = SIMINT_MUL(extra, erfval);
+            SIMINT_DBLTYPE res = SIMINT_MUL(extra, erfval);
+            double *xptr = ((double *)&x);
+            double *resptr = ((double *)&res);
+            for(int i = 0; i < SIMINT_SIMD_LEN; i++)
+                resptr[i] = (xptr[i] == 0.0) ? 1.0 : resptr[i];
+            F[0] = res;
         }
     }
 #else

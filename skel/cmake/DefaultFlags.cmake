@@ -9,13 +9,11 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "Intel")
   ##########################################################################################
 
   list(APPEND SIMINT_C_FLAGS "-std=c11")
-  list(APPEND SIMINT_C_FLAGS "-qopenmp")
+  list(APPEND SIMINT_C_FLAGS "-qopenmp-simd")
   list(APPEND SIMINT_C_FLAGS "-qopt-report=5;-w3")
   list(APPEND SIMINT_C_FLAGS "-wd10397;-wd2415;-wd981;-wd869;-wd1599;-wd177")  # Remove wd177 (unused variable) at some point
 
   list(APPEND SIMINT_Fortran_FLAGS "-std03;-fpp")
-
-  list(APPEND SIMINT_LINK_FLAGS "-qopenmp")
 
   list(APPEND SIMINT_TESTS_CXX_FLAGS "-std=c++11")
   list(APPEND SIMINT_TESTS_CXX_FLAGS "-qopenmp")
@@ -61,14 +59,12 @@ elseif("${CMAKE_C_COMPILER_ID}" MATCHES "GNU" OR
 
 
   if("${CMAKE_C_COMPILER_ID}" MATCHES "IntelLLVM")
-    list(APPEND SIMINT_C_FLAGS "-qopenmp")
-    list(APPEND SIMINT_LINK_FLAGS "-qopenmp")
+    list(APPEND SIMINT_C_FLAGS "-qopenmp-simd")
     list(APPEND SIMINT_TESTS_CXX_FLAGS "-qopenmp")
     list(APPEND SIMINT_TESTS_LINK_FLAGS "-qopenmp")
   else()
-    list(APPEND SIMINT_C_FLAGS "-fopenmp")
-    list(APPEND SIMINT_LINK_FLAGS "-fopenmp")
-    list(APPEND SIMINT_TESTS_CXX_FLAGS "-fopenmp")
+    list(APPEND SIMINT_C_FLAGS "-fopenmp-simd")
+    list(APPEND SIMINT_TESTS_CXX_FLAGS "-fopenmp-simd")
     list(APPEND SIMINT_TESTS_LINK_FLAGS "-fopenmp")
   endif()
 
