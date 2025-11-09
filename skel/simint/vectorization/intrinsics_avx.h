@@ -77,6 +77,7 @@ union simint_double4
     #define SIMINT_MUL_I32(a,b)    _mm_mullo_epi32((a), (b))
     #define SIMINT_I32SET1(a)      _mm_set1_epi32((a))
 
+    #define SIMINT_ALL_GREATER_THAN(v, t)  all_greater_than((v), (t))
 
     #ifdef SIMINT_AVX2
       #define SIMINT_FMADD(a,b,c)  _mm256_fmadd_pd((a), (b), (c))
@@ -257,6 +258,15 @@ union simint_double4
         return res.v;
     }
 
+    static inline
+    unsigned char all_greater_than(__m256d v, __m256d threshold)
+    {
+        __m256d cmp = _mm256_cmp_pd(v, threshold, _CMP_LE_OQ);
+        // result has all bits set to 1 wherever v <= threshold
+        int zf = _mm256_testz_pd(cmp, cmp);
+        // zf is 1 if all bits are zero, i.e., v > threshold for all lanes
+        return (unsigned char)zf;
+    }
 
     //#define SIMINT_PRIM_SCREEN_STAT
     static inline

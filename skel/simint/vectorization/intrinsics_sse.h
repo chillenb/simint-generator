@@ -66,6 +66,8 @@ static inline __m128d simint_pow_vec2(__m128d a, __m128d p)
       #define SIMINT_FMSUB(a,b,c)  SIMINT_SUB(SIMINT_MUL((a),(b)),(c))
     #endif
 
+    #define SIMINT_ALL_GREATER_THAN(v, t)  all_greater_than((v), (t))
+
     #if defined __INTEL_COMPILER 
         #define SIMINT_EXP(a)       _mm_exp_pd((a))
         #define SIMINT_ERF(a)       _mm_erf_pd((a))
@@ -159,6 +161,18 @@ static inline __m128d simint_pow_vec2(__m128d a, __m128d p)
         for(int n = 0; n < SIMINT_SIMD_LEN; n++)
             max = (m.d[n] > max ? m.d[n] : max);
         return max;
+    }
+
+
+    static inline
+    unsigned char all_greater_than(__m128d v, __m128d threshold)
+    {
+        union simint_double2 vd = { v };
+        union simint_double2 thd = { threshold };
+        unsigned char res = 1;
+        for(int n = 0; n < SIMINT_SIMD_LEN; n++)
+            if (vd.d[n] <= thd.d[n]) res = 0;
+        return res;
     }
 
 

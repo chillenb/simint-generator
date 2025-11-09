@@ -23,6 +23,7 @@ extern "C" {
     #define SIMINT_EXP(a)          exp((a))
     #define SIMINT_ERF(a)          erf((a))
     #define SIMINT_POW(a, p)       pow((a), (p))
+    #define SIMINT_ALL_GREATER_THAN(v, t)  all_greater_than((v), (t))
 
 
     ////////////////////////////////////////
@@ -100,6 +101,11 @@ extern "C" {
         return v;
     }
 
+    static inline
+    unsigned char all_greater_than(double v, double threshold)
+    {
+        return (v > threshold);
+    }
 
     static inline
     double mask_load(int nlane, double * memaddr)

@@ -21,9 +21,9 @@ void boys_F_split_small_n(SIMINT_DBLTYPE * restrict F,
     // n is small - just do it all of them via
     // lookup or longfac (no recursion)
     #ifndef SIMINT_BOYS_NOVECTOR
-    if(vector_min(x) > BOYS_SHORTGRID_MAXX)
+    if(SIMINT_ALL_GREATER_THAN(x, SIMINT_DBLSET1(BOYS_SHORTGRID_MAXX)))
         boys_F_long_vec(F, x, n);
-    else if(vector_max(x) < BOYS_SHORTGRID_MAXX)
+    else if(SIMINT_ALL_GREATER_THAN(SIMINT_DBLSET1(BOYS_SHORTGRID_MAXX), x))
         boys_F_taylor_vec(F, x, n);
     else
         boys_F_rational_vec(F, x, n);
@@ -50,9 +50,9 @@ void boys_F_split_large_n(SIMINT_DBLTYPE * restrict F,
     // n is large - do only the highest, then recur down
 
     #ifndef SIMINT_BOYS_NOVECTOR
-    if(vector_min(x) > BOYS_SHORTGRID_MAXX)
+    if(SIMINT_ALL_GREATER_THAN(x, SIMINT_DBLSET1(BOYS_SHORTGRID_MAXX)))
         F[n] = boys_F_long_single_vec(x, n);
-    else if(vector_max(x) < BOYS_SHORTGRID_MAXX)
+    else if(SIMINT_ALL_GREATER_THAN(SIMINT_DBLSET1(BOYS_SHORTGRID_MAXX), x))
         F[n] = boys_F_taylor_single_vec(x, n);
     else
     #endif
@@ -90,7 +90,7 @@ void boys_F_split(SIMINT_DBLTYPE * restrict F,
 {
 #ifdef SIMINT_BOYS_RATIONAL
 // use the rational interpolation method
-    if(vector_min(x) > BOYS_SHORTGRID_MAXX)
+    if(SIMINT_ALL_GREATER_THAN(x, SIMINT_DBLSET1(BOYS_SHORTGRID_MAXX)))
         // we use the asymptotic expansion for large x
         boys_F_long_vec(F, x, n);
     else
@@ -158,9 +158,6 @@ void generalized_boys_Gn(SIMINT_DBLTYPE * restrict F,
     SIMINT_DBLTYPE tmp[BOYS_SHORTGRID_MAXN+1] SIMINT_ALIGN_ARRAY_DBL;
     switch(potential_data.potential_type)
     {
-        case COULOMB_POTENTIAL:
-            boys_F_split(F, SIMINT_MUL(R2, alpha), n);
-            break;
         case ERF_COULOMB_POTENTIAL:
             ahlrichs_Gn_erf(F, R2, alpha, potential_data.omega, n);
             break;
@@ -173,8 +170,8 @@ void generalized_boys_Gn(SIMINT_DBLTYPE * restrict F,
             }
             break;
         default:
-            for(int i = 0; i <= n; i++)
-                F[i] = SIMINT_DBLSET1((double) NAN);
+        case COULOMB_POTENTIAL:
+            boys_F_split(F, SIMINT_MUL(R2, alpha), n);
             break;
     }
 }

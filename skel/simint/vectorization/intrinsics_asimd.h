@@ -66,6 +66,7 @@ static inline float64x2_t simint_pow_vec2(float64x2_t a, float64x2_t p)
     #define SIMINT_ERF(a)          simint_erf_vec2((a))
     #define SIMINT_POW(a,p)        simint_pow_vec2((a), (p))
 
+    #define SIMINT_ALL_GREATER_THAN(v, t)  all_greater_than((v), (t))
 
     ////////////////////////////////////////
     // Special functions
@@ -148,6 +149,17 @@ static inline float64x2_t simint_pow_vec2(float64x2_t a, float64x2_t p)
         for(int n = 1; n < SIMINT_SIMD_LEN; n++)
             max = (m.d[n] > max ? m.d[n] : max);
         return max;
+    }
+
+    static inline
+    unsigned char all_greater_than(float64x2_t v, float64x2_t threshold)
+    {
+        union simint_double2 vd = { v };
+        union simint_double2 thd = { threshold };
+        unsigned char res = 1;
+        for(int n = 0; n < SIMINT_SIMD_LEN; n++)
+            if (vd.d[n] <= thd.d[n]) res = 0;
+        return res;
     }
 
     static inline

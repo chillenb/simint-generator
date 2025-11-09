@@ -110,6 +110,8 @@ static inline __m512d simint_pow_vec8(__m512d a, __m512d p)
     #define SIMINT_MUL_I32(a,b)    _mm256_mullo_epi32((a), (b))
     #define SIMINT_I32SET1(a)      _mm256_set1_epi32((a))
 
+    #define SIMINT_ALL_GREATER_THAN(v, t)  all_greater_than((v), (t))
+
     #define SIMINT_GATHER_DBL_BY_I32(vdx, base)  _mm512_i32gather_pd((vdx), (base), sizeof(double))
 
     #if defined __INTEL_COMPILER 
@@ -257,6 +259,16 @@ static inline __m512d simint_pow_vec8(__m512d a, __m512d p)
             return max;
         #endif
     }
+
+    static inline
+    unsigned char all_greater_than(__m512d v, __m512d threshold)
+    {
+        __mmask8 mask = _mm512_cmp_pd_mask(v, threshold, _CMP_GT_OQ);
+        // we now have a mask of 1s where v > threshold
+        unsigned char comp_result = _kortestc_mask8_u8(mask, mask);
+        return comp_result;
+    }
+
 
     static inline
     __m512d mask_load(int nlane, double * memaddr)

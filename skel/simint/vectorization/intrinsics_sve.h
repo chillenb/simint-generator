@@ -108,6 +108,7 @@ static inline vec_d simint_pow_vec(vec_d a, vec_d p)
     #define SIMINT_ERF(a)          simint_erf_vec((a))
     #define SIMINT_POW(a,p)        simint_pow_vec((a), (p))
 
+    #define SIMINT_ALL_GREATER_THAN(v, t)  all_greater_than((v), (t))
 
     ////////////////////////////////////////
     // Special functions
@@ -184,6 +185,20 @@ static inline vec_d simint_pow_vec(vec_d a, vec_d p)
     {
         return svmaxv_f64(PTRUE64B, v);
     }
+
+
+    static inline
+    unsigned char all_greater_than(vec_d v, vec_d threshold)
+    {
+        // sorry, I don't know SVE.
+        union simint_double_sve vd = { v };
+        union simint_double_sve thd = { threshold };
+        unsigned char res = 1;
+        for(int n = 0; n < SIMINT_SIMD_LEN; n++)
+            if (vd.d[n] <= thd.d[n]) res = 0;
+        return res;
+    }
+
 
     static inline
     vec_d mask_load(int nlane, double * memaddr)
