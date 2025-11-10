@@ -14,7 +14,36 @@ union simint_double2
     double d[2];
 };
 
+#ifdef SIMINT_USE_SVML
 
+// Use SVML if available
+
+#if defined __GNUC__ || defined __INTEL_LLVM_COMPILER // GCC, Clang, Intel LLVM
+#define SIMINT_ATTRIBUTE_CONST __attribute__((const))
+#else
+#define SIMINT_ATTRIBUTE_CONST
+#endif
+
+SIMINT_ATTRIBUTE_CONST __m128d __svml_exp2(__m128d x);
+SIMINT_ATTRIBUTE_CONST __m128d __svml_erf2(__m128d x);
+SIMINT_ATTRIBUTE_CONST __m128d __svml_pow2(__m128d a, __m128d p);
+
+static inline __m128d simint_exp_vec2(__m128d x)
+{
+    return __svml_exp2(x);
+}
+
+static inline __m128d simint_erf_vec2(__m128d x)
+{
+    return __svml_erf2(x);
+}
+
+static inline __m128d simint_pow_vec2(__m128d a, __m128d p)
+{
+    return __svml_pow2(a, p);
+}
+
+#else
 // Missing GCC vectorized exp and pow
 static inline __m128d simint_exp_vec2(__m128d x)
 {
@@ -43,6 +72,7 @@ static inline __m128d simint_pow_vec2(__m128d a, __m128d p)
         res.d[i] = pow(ua.d[i], up.d[i]);
     return res.v;
 }
+#endif
 
 #if defined SIMINT_SSE
 

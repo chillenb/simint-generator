@@ -17,8 +17,36 @@ union simint_double4
     double d[4];
 };
 
+#ifdef SIMINT_USE_SVML
 
-#if __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 22
+// Use SVML if available
+
+#if defined __GNUC__ || defined __INTEL_LLVM_COMPILER // GCC, Clang, Intel LLVM
+#define SIMINT_ATTRIBUTE_CONST __attribute__((const))
+#else
+#define SIMINT_ATTRIBUTE_CONST
+#endif
+
+SIMINT_ATTRIBUTE_CONST __m256d __svml_exp4(__m256d x);
+SIMINT_ATTRIBUTE_CONST __m256d __svml_erf4(__m256d x);
+SIMINT_ATTRIBUTE_CONST __m256d __svml_pow4(__m256d a, __m256d p);
+
+static inline __m256d simint_exp_vec4(__m256d x)
+{
+    return __svml_exp4(x);
+}
+
+static inline __m256d simint_erf_vec4(__m256d x)
+{
+    return __svml_erf4(x);
+}
+
+static inline __m256d simint_pow_vec4(__m256d a, __m256d p)
+{
+    return __svml_pow4(a, p);
+}
+
+#elif __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 22
     __m256d _ZGVdN4v_exp(__m256d x);
     static inline __m256d simint_exp_vec4(__m256d x) { return _ZGVdN4v_exp(x); }
 

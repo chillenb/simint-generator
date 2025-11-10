@@ -23,23 +23,30 @@ union simint_double8
 
 // Use SVML if available
 
-__m512d __svml_exp8_ha(__m512d x);
-__m512d __svml_erf8_ha(__m512d x);
-__m512d __svml_pow8_ha(__m512d a, __m512d p);
+
+#if defined __GNUC__ || defined __INTEL_LLVM_COMPILER // GCC, Clang, Intel LLVM
+#define SIMINT_ATTRIBUTE_CONST __attribute__((const))
+#else
+#define SIMINT_ATTRIBUTE_CONST
+#endif
+
+SIMINT_ATTRIBUTE_CONST __m512d __svml_exp8(__m512d x);
+SIMINT_ATTRIBUTE_CONST __m512d __svml_erf8(__m512d x);
+SIMINT_ATTRIBUTE_CONST __m512d __svml_pow8(__m512d a, __m512d p);
 
 static inline __m512d simint_exp_vec8(__m512d x)
 {
-    return __svml_exp8_ha(x);
+    return __svml_exp8(x);
 }
 
 static inline __m512d simint_erf_vec8(__m512d x)
 {
-    return __svml_erf8_ha(x);
+    return __svml_erf8(x);
 }
 
 static inline __m512d simint_pow_vec8(__m512d a, __m512d p)
 {
-    return __svml_pow8_ha(a, p);
+    return __svml_pow8(a, p);
 }
 
 #elif __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 22
