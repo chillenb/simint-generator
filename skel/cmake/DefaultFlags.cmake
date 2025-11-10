@@ -64,7 +64,7 @@ elseif("${CMAKE_C_COMPILER_ID}" MATCHES "GNU" OR
     list(APPEND SIMINT_TESTS_LINK_FLAGS "-qopenmp;-fimf-use-svml=true")
   else()
     list(APPEND SIMINT_C_FLAGS "-fopenmp-simd")
-    list(APPEND SIMINT_TESTS_CXX_FLAGS "-fopenmp-simd")
+    list(APPEND SIMINT_TESTS_CXX_FLAGS "-fopenmp")
     list(APPEND SIMINT_TESTS_LINK_FLAGS "-fopenmp")
   endif()
 
