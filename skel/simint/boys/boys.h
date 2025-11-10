@@ -26,7 +26,6 @@ void boys_F_split_small_n(SIMINT_DBLTYPE * restrict F,
     else if(SIMINT_ALL_GREATER_THAN(SIMINT_DBLSET1(BOYS_SHORTGRID_MAXX), x))
         boys_F_taylor_vec(F, x, n);
     else
-        boys_F_rational_vec(F, x, n);
     #endif
     {
         double * restrict Fd = (double *)F;
