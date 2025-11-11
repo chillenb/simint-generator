@@ -87,16 +87,11 @@ void boys_F_split(SIMINT_DBLTYPE * restrict F,
                   SIMINT_DBLTYPE x,
                   int n)
 {
-#ifdef SIMINT_BOYS_RATIONAL
-// use the rational interpolation method
     if(SIMINT_ALL_GREATER_THAN(x, SIMINT_DBLSET1(BOYS_SHORTGRID_MAXX)))
         // we use the asymptotic expansion for large x
         boys_F_long_vec(F, x, n);
-    else
+    else if (n==0)
     {
-        if (n>0)
-            boys_F_rational_vec(F, x, n);
-        else {
             // case n=0, use erf
             SIMINT_DBLTYPE sqrtx = SIMINT_SQRT(x);
             SIMINT_DBLTYPE erfval = SIMINT_ERF(sqrtx);
@@ -107,14 +102,19 @@ void boys_F_split(SIMINT_DBLTYPE * restrict F,
             for(int i = 0; i < SIMINT_SIMD_LEN; i++)
                 resptr[i] = (xptr[i] == 0.0) ? 1.0 : resptr[i];
             F[0] = res;
-        }
     }
-#else
-    // look-up taylor method
-    if(n < 4)
-        boys_F_split_small_n(F, x, n);
     else
-        boys_F_split_large_n(F, x, n);
+#ifdef SIMINT_BOYS_RATIONAL
+// use the rational interpolation method
+        boys_F_rational_vec(F, x, n);
+#else
+    {
+        // look-up taylor method
+        if(n < 4)
+            boys_F_split_small_n(F, x, n);
+        else
+            boys_F_split_large_n(F, x, n);
+    }
 #endif
 }
 
