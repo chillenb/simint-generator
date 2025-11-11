@@ -95,13 +95,13 @@ int main(int argc, char ** argv)
     std::pair<int, int> maxparams = FindMaxParams(shellmap);
     const int maxam = (maxparams.first > SIMINT_OSTEI_MAXAM ? SIMINT_OSTEI_MAXAM : maxparams.first);
     const int max_ncart = ( (maxam+1)*(maxam+2) )/2;
-    const int maxsize = maxparams.second * maxparams.second * max_ncart * max_ncart;
+    const size_t maxsize = maxparams.second * maxparams.second * max_ncart * max_ncart;
 
     /* Storage of integrals */
-    double * all_res_ints = (double *)SIMINT_ALLOC(nthread * maxsize * sizeof(double));
+    double * all_res_ints = (double *)SIMINT_ALLOC((size_t)nthread * maxsize * sizeof(double));
 
     /* contracted workspace */
-    double * all_simint_work = (double *)SIMINT_ALLOC(nthread * simint_ostei_workmem(0, maxam));
+    double * all_simint_work = (double *)SIMINT_ALLOC((size_t)nthread * simint_ostei_workmem(0, maxam));
 
 
     // initialize stuff
@@ -109,7 +109,7 @@ int main(int argc, char ** argv)
 
     #ifdef BENCHMARK_VALIDATE
     ValeevRef_Init();
-    double * all_res_ref = (double *)SIMINT_ALLOC(nthread * maxsize * sizeof(double));
+    double * all_res_ref = (double *)SIMINT_ALLOC((size_t)nthread * maxsize * sizeof(double));
     #endif
 
     PrintTimingHeader();
@@ -121,7 +121,7 @@ int main(int argc, char ** argv)
     size_t skipped_total = 0;
     TimeContrib time_total;
 
-    std::vector<std::array<int, 4>> qam_to_test {{0, 0, 0, 0}, {2,2,2,2}, {3, 1, 3, 0}, {2, 2, 3, 0}};
+    std::vector<std::array<int, 4>> qam_to_test {{0, 0, 0, 0}, {2,2,2,2}, {3, 1, 3, 0}, {2, 2, 3, 0}, {3, 3, 3, 3}};
     const size_t n_to_test = qam_to_test.size();
 
     for(size_t q = 0; q < n_to_test; q++)
