@@ -21,6 +21,12 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
+option(SIMINT_USE_LTO "Use link-time optimization" ON)
+
+if(SIMINT_ENABLE_LTO)
+  include(CheckIPOSupported)
+  check_ipo_supported()
+endif()
 
 list(APPEND GENERATOR_CXX_INCLUDES "${CMAKE_SOURCE_DIR}")
 
@@ -72,6 +78,10 @@ add_library(generator_common OBJECT
 
 target_include_directories(generator_common PRIVATE ${GENERATOR_CXX_INCLUDES})
 target_compile_options(generator_common PRIVATE ${GENERATOR_CXX_FLAGS})
+
+if(SIMINT_ENABLE_LTO)
+  set_property(TARGET generator_common PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
 
 
 #####################################
