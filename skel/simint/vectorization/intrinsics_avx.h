@@ -69,7 +69,7 @@ union simint_double4
     #ifdef SIMINT_AVX2
       #define SIMINT_FMADD(a,b,c)  _mm256_fmadd_pd((a), (b), (c))
       #define SIMINT_FMSUB(a,b,c)  _mm256_fmsub_pd((a), (b), (c))
-      #define SIMINT_GATHER_DBL_BY_I32(vdx, base)  _mm256_i32gather_pd((vdx), (base), sizeof(double))
+      #define SIMINT_GATHER_DBL_BY_I32(vdx, base)  _mm256_i32gather_pd((base), (vdx), sizeof(double))
     #else
       #define SIMINT_FMADD(a,b,c)  SIMINT_ADD(SIMINT_MUL((a),(b)),(c))
       #define SIMINT_FMSUB(a,b,c)  SIMINT_SUB(SIMINT_MUL((a),(b)),(c))
